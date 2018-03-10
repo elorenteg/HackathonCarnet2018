@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TPGraph extends AsyncTask<Void, List<String>, List<String>> {
+public class TPGraph extends AsyncTask<Void, Void, String> {
 
     public static String TAG = "TPGraph";
     public static Context mContext;
@@ -40,6 +40,8 @@ public class TPGraph extends AsyncTask<Void, List<String>, List<String>> {
     private Session session;
     private Graph graph;
 
+    private boolean isGraphLoaded;
+
     public void loadGraph(Context context) throws IOException {
         mContext = context;
 
@@ -48,11 +50,13 @@ public class TPGraph extends AsyncTask<Void, List<String>, List<String>> {
         session = null;
         graph = null;
 
+        isGraphLoaded = false;
+
         execute();
     }
 
     public boolean isGraphLoaded() {
-        return graph != null;
+        return isGraphLoaded;
     }
 
     public Graph getGraph() {
@@ -60,7 +64,7 @@ public class TPGraph extends AsyncTask<Void, List<String>, List<String>> {
     }
 
     @Override
-    protected List<String> doInBackground(Void... voids) {
+    protected String doInBackground(Void... voids) {
         try {
             SparkseeConfig cfg = new SparkseeConfig();
             cfg.setLicense(SparkseeLicense);
@@ -95,10 +99,11 @@ public class TPGraph extends AsyncTask<Void, List<String>, List<String>> {
             Log.e(TAG, "error ", e);
         }
 
-        return null;
+        return "";
     }
 
-    protected void onPostExecute(List<String> values) {
-        Log.e(TAG, "onPost");
+    protected void onPostExecute(String values) {
+        if (graph != null) isGraphLoaded = true;
+        Log.e(TAG, "TPGraph loaded: " + isGraphLoaded);
     }
 }
