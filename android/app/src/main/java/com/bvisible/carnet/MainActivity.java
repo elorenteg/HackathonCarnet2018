@@ -3,8 +3,6 @@ package com.bvisible.carnet;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -12,17 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bvisible.carnet.controllers.TPGraph;
-import com.sparsity.sparksee.gdb.Database;
-import com.sparsity.sparksee.gdb.Graph;
-import com.sparsity.sparksee.gdb.LogLevel;
-import com.sparsity.sparksee.gdb.Session;
-import com.sparsity.sparksee.gdb.Sparksee;
-import com.sparsity.sparksee.gdb.SparkseeConfig;
+import com.bvisible.carnet.controllers.TPGraphDatabase;
+import com.bvisible.carnet.controllers.TPGraphQueryStops;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
@@ -83,11 +75,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openGDB() {
-        TPGraph tpGraph = new TPGraph();
+        TPGraphDatabase tpGraphDB = new TPGraphDatabase(getApplicationContext());
+        TPGraphQueryStops tpGraphQueryStops = new TPGraphQueryStops(getApplicationContext());
+
         try {
-            tpGraph.loadGraph(getApplicationContext());
+            tpGraphDB.loadDatabase();
+            tpGraphQueryStops.queryGraph(tpGraphDB);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //tpGraphDB.closeDatabase();
     }
 }
