@@ -1,11 +1,9 @@
 package com.bvisible.carnet;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -15,21 +13,23 @@ import com.bvisible.carnet.controllers.TPGraphDatabase;
 import com.bvisible.carnet.controllers.TPGraphQueryNearTP;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AsyncResponse {
 
-    public static String TAG = "MainActivity";
-    TPGraphQueryNearTP asyncTask;
-
-    //permissions
-    private static final int PERMISSION_REQUEST_WRITE_FILE= 1;
-
-    private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
     private static final String GRAPH_DATABASE_NAME = "imdb.gdb";
+    public static String TAG = "MainActivity";
+    private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
+    TPGraphQueryNearTP asyncTask;
 
     private TextView mTextMessage;
 
@@ -58,26 +58,44 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        setUpElements();
 
         asyncTask = new TPGraphQueryNearTP(getApplicationContext());
         asyncTask.delegate = this;
         requestFileAccessPermission();
     }
 
+    private void setUpElements() {
+        mTextMessage = findViewById(R.id.message);
+    }
+
     private void requestFileAccessPermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG,"permission granted");
-            openGDB();
-        }
-        else{
-            Log.e(TAG,"requesting permission");
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    PERMISSION_REQUEST_WRITE_FILE);
-        }
+        final int permissions = 5;
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.BLUETOOTH,
+                        Manifest.permission.BLUETOOTH_ADMIN,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ).withListener(new MultiplePermissionsListener() {
+            @Override
+            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                boolean allPermissionsChecked = report.getGrantedPermissionResponses().size() == permissions;
+
+                if (allPermissionsChecked) {
+                    openGDB();
+                }
+            }
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+            }
+        }).check();
     }
 
     private void openGDB() {
@@ -96,13 +114,13 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse {
 
     @Override
     public void processFinish() {
-        Log.e(TAG, "SEFINI");
+        Log.e(TAG, "processFinish");
         ArrayList<Stop> stops = asyncTask.getRoutes();
 
         String text = "";
-        for( Stop stop : stops ) {
+        for (Stop stop : stops) {
             text += stop.getName() + "\n";
-            for( Route route : stop.getRoutes() ) {
+            for (Route route : stop.getRoutes()) {
                 text += "  " + route.getShortname() + " " + route.getLongname() + "\n";
             }
         }
