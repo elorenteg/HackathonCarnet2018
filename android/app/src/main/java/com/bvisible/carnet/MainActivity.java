@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.bvisible.carnet.controllers.TPGraphDatabase;
-import com.bvisible.carnet.controllers.TPGraphQueryStops;
+import com.bvisible.carnet.controllers.TPGraphQueryNearStops;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -76,11 +76,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void openGDB() {
         TPGraphDatabase tpGraphDB = new TPGraphDatabase(getApplicationContext());
-        TPGraphQueryStops tpGraphQueryStops = new TPGraphQueryStops(getApplicationContext());
+        TPGraphQueryNearStops tpGraphQueryStops = new TPGraphQueryNearStops(getApplicationContext());
 
         try {
             tpGraphDB.loadDatabase();
-            tpGraphQueryStops.queryGraph(tpGraphDB);
+            tpGraphQueryStops.queryGraph(tpGraphDB, 41.388693, 2.112126);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
