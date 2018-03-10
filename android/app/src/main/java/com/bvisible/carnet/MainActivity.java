@@ -11,19 +11,24 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.bvisible.carnet.controllers.BikeGraphDatabase;
+import com.bvisible.carnet.controllers.BikeGraphQueryNear;
 import com.bvisible.carnet.controllers.TPGraphDatabase;
 import com.bvisible.carnet.controllers.TPGraphQueryNearTP;
+import com.bvisible.carnet.models.BikeLane;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements AsyncResponse {
 
     public static String TAG = "MainActivity";
-    TPGraphQueryNearTP asyncTask;
+    TPGraphQueryNearTP asyncTaskTP;
+    BikeGraphQueryNear asyncTaskBikes;
 
     //permissions
     private static final int PERMISSION_REQUEST_WRITE_FILE= 1;
@@ -62,8 +67,10 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        asyncTask = new TPGraphQueryNearTP(getApplicationContext());
-        asyncTask.delegate = this;
+        asyncTaskTP = new TPGraphQueryNearTP(getApplicationContext());
+        asyncTaskBikes = new BikeGraphQueryNear(getApplicationContext());
+        asyncTaskTP.delegate = this;
+        asyncTaskBikes.delegate = this;
         requestFileAccessPermission();
     }
 
@@ -82,10 +89,13 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse {
 
     private void openGDB() {
         TPGraphDatabase tpGraphDB = new TPGraphDatabase(getApplicationContext());
+        BikeGraphDatabase bikeGraphDB = new BikeGraphDatabase(getApplicationContext());
 
         try {
             tpGraphDB.loadDatabase();
-            asyncTask.queryGraph(tpGraphDB, 41.388693, 2.112126);
+            bikeGraphDB.loadDatabase();
+            asyncTaskTP.queryGraph(tpGraphDB, 41.388693, 2.112126);
+            asyncTaskBikes.queryGraph(bikeGraphDB, 41.388693, 2.112126);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -95,17 +105,23 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse {
     }
 
     @Override
-    public void processFinish() {
-        Log.e(TAG, "SEFINI");
-        ArrayList<Stop> stops = asyncTask.getRoutes();
+    public void processFinish(String typeAsync) {
+        Log.e(TAG, "SEFINI " + typeAsync);
+        if (typeAsync.equals("STOPS")) {
+            ArrayList<Stop> stops = asyncTaskTP.getRoutes();
 
-        String text = "";
-        for( Stop stop : stops ) {
-            text += stop.getName() + "\n";
-            for( Route route : stop.getRoutes() ) {
-                text += "  " + route.getShortname() + " " + route.getLongname() + "\n";
+            String text = "";
+            for (Stop stop : stops) {
+                text += stop.getName() + "\n";
+                for (Route route : stop.getRoutes()) {
+                    text += "  " + route.getShortname() + " " + route.getLongname() + "\n";
+                }
             }
+            mTextMessage.setText(text);
         }
-        mTextMessage.setText(text);
+        else if (typeAsync.equals("BIKES")) {
+            ArrayList<BikeLane> bikelanes = asyncTaskBikes.getBikes();
+            Log.e(TAG, bikelanes.toString());
+        }
     }
 }
