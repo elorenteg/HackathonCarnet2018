@@ -1,32 +1,18 @@
 package com.bvisible.carnet.controllers;
 
 import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.bvisible.carnet.Algorithms;
-import com.bvisible.carnet.R;
 import com.bvisible.carnet.Schema;
-import com.sparsity.sparksee.gdb.Condition;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.Graph;
 import com.sparsity.sparksee.gdb.LogLevel;
-import com.sparsity.sparksee.gdb.Objects;
 import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Sparksee;
 import com.sparsity.sparksee.gdb.SparkseeConfig;
-import com.sparsity.sparksee.gdb.Value;
-import com.sparsity.sparksee.script.ScriptParser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TPGraphDatabase {
 

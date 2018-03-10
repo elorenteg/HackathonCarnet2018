@@ -7,7 +7,8 @@ public class Schema {
 
     private int stopType        = Type.InvalidType;
     private int routeType       = Type.InvalidType;
-    private int connectsType    = Type.InvalidType;
+    private int connectStopsType    = Type.InvalidType;
+    private int connectRouteType    = Type.InvalidType;
     private int hasStopType     = Type.InvalidType;
 
     private int stopIdType      = Type.InvalidType;
@@ -26,7 +27,8 @@ public class Schema {
 
         stopType = graph.findType("stop");
         routeType = graph.findType("route");
-        connectsType = graph.findType("connects");
+        connectStopsType = graph.findType("connectstops");
+        connectRouteType = graph.findType("connectroute");
         hasStopType = graph.findType("has_stop");
 
         stopIdType = graph.findAttribute(stopType,"id");
@@ -48,10 +50,6 @@ public class Schema {
 
     public int getRouteType() {
         return routeType;
-    }
-
-    public int getConnectsType() {
-        return connectsType;
     }
 
     public int getHasStopType() {
@@ -92,5 +90,13 @@ public class Schema {
 
     public int getRouteTypeType() {
         return routeTypeType;
+    }
+
+    public int getConnectStopsType() {
+        return connectStopsType;
+    }
+
+    public int getConnectRouteType() {
+        return connectRouteType;
     }
 }
