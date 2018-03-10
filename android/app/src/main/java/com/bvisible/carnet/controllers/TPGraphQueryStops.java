@@ -12,6 +12,7 @@ import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.Graph;
 import com.sparsity.sparksee.gdb.LogLevel;
 import com.sparsity.sparksee.gdb.Objects;
+import com.sparsity.sparksee.gdb.ObjectsIterator;
 import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Sparksee;
 import com.sparsity.sparksee.gdb.SparkseeConfig;
@@ -46,17 +47,19 @@ public class TPGraphQueryStops  extends AsyncTask<Void, Void, String> {
             Session session = tpGraphDB.getSession();
             Schema schema = tpGraphDB.getSchema();
 
-            ArrayList<Integer> route = Algorithms.findRoute(session, schema, 0,29 );
-
-            for( Integer id : route ) {
-                Objects objects = graph.select(schema.getStopIdType(), Condition.Equal, (new Value()).setInteger(id));
-                Value value = new Value();
-                graph.getAttribute(objects.any(), schema.getStopNameType(),value);
-                Log.e(TAG, value.getString());
-                objects.close();
+            Objects castStops = graph.select(schema.getStopType());
+            ObjectsIterator itstops = castStops.iterator();
+            while (itstops.hasNext())
+            {
+                long stopOid = itstops.next();
+                Value stopnamevalue = new Value();
+                Value stoplatvalue = new Value();
+                Value stoplngvalue = new Value();
+                graph.getAttribute(stopOid, schema.getStopNameType(), stopnamevalue);
+                graph.getAttribute(stopOid, schema.getStopLatType(), stoplatvalue);
+                graph.getAttribute(stopOid, schema.getStopLonType(), stoplngvalue);
+                Log.e(TAG, stopnamevalue.getString() + " // " + stoplatvalue.getString() + "-" + stoplngvalue.getString());
             }
-
-            //session.close();
         } catch (Exception e) {
             Log.e(TAG, "error ", e);
         }
