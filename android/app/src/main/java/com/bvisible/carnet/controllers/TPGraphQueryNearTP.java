@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.bvisible.carnet.AsyncResponse;
 import com.bvisible.carnet.Schema;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
+    public AsyncResponse delegate = null;
 
     private static String TAG = "TPGraphQueryStops";
     private static Context mContext;
@@ -30,8 +32,8 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
 
     Objects nearStops = null;
     Objects nearRoutes = null;
-    private List<Stop> stops;
-    private List<Route> routes;
+    private ArrayList<Stop> stops;
+    private ArrayList<Route> routes;
 
 
     private static TPGraphDatabase tpGraphDB;
@@ -168,7 +170,12 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
         return route;
     }
 
-    protected void onPostExecute(String values) {
-        Log.e(TAG, "hola");
+    protected void onPostExecute(String string) {
+        Log.e(TAG, "SEFINI");
+        delegate.processFinish();
+    }
+
+    public ArrayList<Stop> getRoutes() {
+        return stops;
     }
 }

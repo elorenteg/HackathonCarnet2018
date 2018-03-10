@@ -13,13 +13,17 @@ import android.widget.TextView;
 
 import com.bvisible.carnet.controllers.TPGraphDatabase;
 import com.bvisible.carnet.controllers.TPGraphQueryNearTP;
+import com.bvisible.carnet.models.Route;
+import com.bvisible.carnet.models.Stop;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AsyncResponse {
 
     public static String TAG = "MainActivity";
+    TPGraphQueryNearTP asyncTask;
 
     //permissions
     private static final int PERMISSION_REQUEST_WRITE_FILE= 1;
@@ -58,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        asyncTask = new TPGraphQueryNearTP(getApplicationContext());
+        asyncTask.delegate = this;
         requestFileAccessPermission();
     }
 
@@ -76,16 +82,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void openGDB() {
         TPGraphDatabase tpGraphDB = new TPGraphDatabase(getApplicationContext());
-        TPGraphQueryNearTP tpGraphQueryStops = new TPGraphQueryNearTP(getApplicationContext());
 
         try {
             tpGraphDB.loadDatabase();
-            tpGraphQueryStops.queryGraph(tpGraphDB, 41.388693, 2.112126);
+            asyncTask.queryGraph(tpGraphDB, 41.388693, 2.112126);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         //tpGraphDB.closeDatabase();
+    }
+
+    @Override
+    public void processFinish() {
+        Log.e(TAG, "SEFINI");
+        ArrayList<Stop> stops = asyncTask.getRoutes();
+
+        String text = "";
+        for( Stop stop : stops ) {
+            text += stop.getName() + "\n";
+            for( Route route : stop.getRoutes() ) {
+                text += "  " + route.getShortname() + " " + route.getLongname() + "\n";
+            }
+        }
+        mTextMessage.setText(text);
     }
 }
