@@ -1,10 +1,13 @@
 package com.bvisible.carnet.models;
 
+import java.util.ArrayList;
+
 public class Stop {
     private int id;
     private String name;
     private String lat;
     private String lng;
+    private ArrayList<Route> routes;
 
     public int getId() {
         return id;
@@ -38,13 +41,22 @@ public class Stop {
         this.lng = lng;
     }
 
+    public ArrayList<Route> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(ArrayList<Route> routes) {
+        this.routes = routes;
+    }
+
     @Override
     public String toString() {
         return "Stop{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 ", lat='" + lat + '\'' +
                 ", lng='" + lng + '\'' +
+                ", routes=" + routes +
                 '}';
     }
 }

@@ -57,6 +57,7 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
 
             nearStops = null;
             nearRoutes = null;
+            stops = new ArrayList<>();
 
             loadNearStops(graph, schema);
             loadNearRoutes(graph, schema);
@@ -68,8 +69,6 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
     }
 
     private void loadNearStops(Graph graph, Schema schema) {
-        stops = new ArrayList<>();
-
         double diffLat = 0.0015;
         double diffLng = 0.0015;
 
@@ -88,29 +87,6 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
         Objects castNEarStopsLng = graph.select(schema.getStopLonType(), Condition.Between,
                 value1.setString(String.valueOf(minLng)), value2.setString(String.valueOf(maxLng)));
         nearStops = Objects.combineIntersection(castNearStopsLat, castNEarStopsLng);
-        /*
-        ObjectsIterator itstops = nearStops.iterator();
-        while (itstops.hasNext())
-        {
-            long stopOid = itstops.next();
-            Value stopidvalue = new Value();
-            Value stopnamevalue = new Value();
-            Value stoplatvalue = new Value();
-            Value stoplngvalue = new Value();
-            graph.getAttribute(stopOid, schema.getStopIdType(), stopidvalue);
-            graph.getAttribute(stopOid, schema.getStopNameType(), stopnamevalue);
-            graph.getAttribute(stopOid, schema.getStopLatType(), stoplatvalue);
-            graph.getAttribute(stopOid, schema.getStopLonType(), stoplngvalue);
-
-            Stop stop = new Stop();
-            stop.setId(stopidvalue.getInteger());
-            stop.setName(stopnamevalue.getString());
-            stop.setLat(stoplatvalue.getString());
-            stop.setLng(stoplngvalue.getString());
-            stops.add(stop);
-            Log.e(TAG, stop.toString());
-        }
-        */
     }
 
     private void loadNearRoutes(Graph graph, Schema schema) {
@@ -120,23 +96,20 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
             ObjectsIterator itstops = nearStops.iterator();
             while (itstops.hasNext()) {
                 long stopOid = itstops.next();
-                Value stopidvalue = new Value();
-                Value stopnamevalue = new Value();
-                graph.getAttribute(stopOid, schema.getStopIdType(), stopidvalue);
-                graph.getAttribute(stopOid, schema.getStopNameType(), stopnamevalue);
-                Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
+                Stop stop = getStop(graph, schema, stopOid);
+                ArrayList<Route> stoproutes = new ArrayList<>();
 
                 Objects routesFromStop = graph.neighbors(stopOid, schema.getConnectRouteType(), EdgesDirection.Ingoing);
                 ObjectsIterator itroutes = routesFromStop.iterator();
                 while (itroutes.hasNext())
                 {
                     long routeOid = itroutes.next();
-                    Value routeidvalue = new Value();
-                    Value routeshortnamevalue = new Value();
-                    graph.getAttribute(routeOid, schema.getRouteIdType(), routeidvalue);
-                    graph.getAttribute(routeOid, schema.getRouteShortNameType(), routeshortnamevalue);
-                    Log.e(TAG, "---Route-" + routeidvalue.toString() + "-" + routeshortnamevalue.toString());
+                    Route route = getRoute(graph, schema, routeOid);
+                    stoproutes.add(route);
                 }
+                stop.setRoutes(stoproutes);
+                Log.e(TAG, stop.toString());
+                stops.add(stop);
             }
 
             /*
@@ -151,6 +124,48 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
             }
             */
         }
+    }
+
+    private Stop getStop(Graph graph, Schema schema, long stopOid) {
+        Value stopidvalue = new Value();
+        Value stopnamevalue = new Value();
+        Value stoplatvalue = new Value();
+        Value stoplngvalue = new Value();
+        graph.getAttribute(stopOid, schema.getStopIdType(), stopidvalue);
+        graph.getAttribute(stopOid, schema.getStopNameType(), stopnamevalue);
+        graph.getAttribute(stopOid, schema.getStopLatType(), stoplatvalue);
+        graph.getAttribute(stopOid, schema.getStopLonType(), stoplngvalue);
+
+        Stop stop = new Stop();
+        stop.setId(stopidvalue.getInteger());
+        stop.setName(stopnamevalue.getString());
+        stop.setLat(stoplatvalue.getString());
+        stop.setLng(stoplngvalue.getString());
+
+        //Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
+
+        return stop;
+    }
+
+    private Route getRoute(Graph graph, Schema schema, long routeOid) {
+        Value routeidvalue = new Value();
+        Value routeshortnamevalue = new Value();
+        Value routelongnamevalue = new Value();
+        Value routetypevalue = new Value();
+        graph.getAttribute(routeOid, schema.getRouteIdType(), routeidvalue);
+        graph.getAttribute(routeOid, schema.getRouteShortNameType(), routeshortnamevalue);
+        graph.getAttribute(routeOid, schema.getRouteLongNameType(), routelongnamevalue);
+        graph.getAttribute(routeOid, schema.getRouteTypeType(), routetypevalue);
+
+        Route route = new Route();
+        route.setId(routeidvalue.getInteger());
+        route.setShortname(routeshortnamevalue.getString());
+        route.setLongname(routelongnamevalue.getString());
+        route.setId(routeidvalue.getInteger());
+
+        //Log.e(TAG, "---Route-" + routeidvalue.toString() + "-" + routeshortnamevalue.toString());
+
+        return route;
     }
 
     protected void onPostExecute(String values) {
