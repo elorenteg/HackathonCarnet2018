@@ -1,11 +1,15 @@
 package com.bvisible.carnet.controllers;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.bvisible.carnet.AsyncResponse;
 import com.bvisible.carnet.models.BikeLane;
+import com.bvisible.carnet.models.StopNextRoutes;
 import com.bvisible.carnet.schemas.BikeSchema;
+import com.bvisible.carnet.utils.Point;
+import com.bvisible.carnet.utils.PointUtils;
 import com.sparsity.sparksee.gdb.Condition;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.Graph;
@@ -15,6 +19,7 @@ import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Value;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class BikeGraphQueryNear {
     public static final String TAG = BikeGraphQueryNear.class.getSimpleName();
@@ -95,6 +100,12 @@ public class BikeGraphQueryNear {
             bikelane.setLat2(lanelat2value.getDouble());
             bikelane.setLng2(lanelng2value.getDouble());
 
+            Point p = new Point(lat, lng);
+            Point pA = new Point(bikelane.getLat1(), bikelane.getLng1());
+            Point pB = new Point(bikelane.getLat2(), bikelane.getLng2());
+            double distance = PointUtils.pointToLineDistance(pA, pB, p);
+            bikelane.setDistance(distance);
+
             //Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
 
             return bikelane;
@@ -139,6 +150,7 @@ public class BikeGraphQueryNear {
                 bikelanes.add(bikelane);
                 //Log.e(TAG, bikelane.toString());
             }
+            Collections.sort(bikelanes);
         }
     }
 }

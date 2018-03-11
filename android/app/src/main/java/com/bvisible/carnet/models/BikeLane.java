@@ -1,6 +1,8 @@
 package com.bvisible.carnet.models;
 
-public class BikeLane {
+import android.support.annotation.NonNull;
+
+public class BikeLane implements Comparable<BikeLane>{
     private String id;
     private String cid;
     private String name;
@@ -8,6 +10,7 @@ public class BikeLane {
     private double lng1;
     private double lat2;
     private double lng2;
+    private double distance;
 
     public String getId() {
         return id;
@@ -65,6 +68,14 @@ public class BikeLane {
         this.lng2 = lng2;
     }
 
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
     @Override
     public String toString() {
         return "BikeLane{" +
@@ -75,5 +86,13 @@ public class BikeLane {
                 ", lat2='" + lat2 + '\'' +
                 ", lng2='" + lng2 + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NonNull BikeLane snr) {
+        if (this.distance <= snr.getDistance()) {
+            return -1;
+        }
+        else return 1;
     }
 }

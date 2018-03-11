@@ -13,6 +13,8 @@ import com.bvisible.carnet.utils.DateUtils;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
 import com.bvisible.carnet.schemas.TPSchema;
+import com.bvisible.carnet.utils.Point;
+import com.bvisible.carnet.utils.PointUtils;
 import com.sparsity.sparksee.gdb.Condition;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.EdgesDirection;
@@ -206,14 +208,23 @@ public class TPGraphQueryNearTP {
         }
     }
 
-    public ArrayList<StopNextRoutes> getNextRoutes() {
+    public ArrayList<StopNextRoutes> getNextRoutes(double latitude, double longitude) {
         ArrayList<Stop> stops = getRoutes();
         ArrayList<StopNextRoutes> stopNextRoutesArray = new ArrayList<>();
+        Point p = new Point(latitude, longitude);
 
         for (Stop stop : stops) {
+            double lat = Double.valueOf(stop.getLat());
+            double lng = Double.valueOf(stop.getLng());
+            Point p2 = new Point(lat, lng);
+            double distance = PointUtils.pointToLineDistance(p2, p2, p);
+
             StopNextRoutes stopNextRoutes = new StopNextRoutes();
             stopNextRoutes.setStopid(stop.getId());
             stopNextRoutes.setStopname(stop.getName());
+            stopNextRoutes.setLat(lat);
+            stopNextRoutes.setLng(lng);
+            stopNextRoutes.setDistance(distance);
             ArrayList<RouteTime> routetimes = new ArrayList<>();
             for (Route route : stop.getRoutes()) {
                 for (String time : route.getTimetable()) {
@@ -228,6 +239,7 @@ public class TPGraphQueryNearTP {
             stopNextRoutesArray.add(stopNextRoutes);
             Log.e(TAG, stopNextRoutes.toString());
         }
+        Collections.sort(stopNextRoutesArray);
 
         return stopNextRoutesArray;
     }

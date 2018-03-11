@@ -48,6 +48,9 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
         ArrayList<BikeLane> bikelanes = NearSitesController.getInstance().getAsyncTaskBikes().getBikes();
         Point p = new Point(lat, lng);
 
+        if(((LinearLayout) linearLayout).getChildCount() > 0)
+            ((LinearLayout) linearLayout).removeAllViews();
+
         ArrayList<String> lanes = new ArrayList<>();
         for (BikeLane bikelane : bikelanes) {
             if (!lanes.contains(bikelane.getName())) {

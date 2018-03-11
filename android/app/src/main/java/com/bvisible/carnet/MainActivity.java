@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
             }
         }).check();
     }
-    
+
     private void startBluetooth() {
         BluetoothController.getInstance(this).startService();
         BluetoothController.getInstance(this).setCallbacks(this, this);

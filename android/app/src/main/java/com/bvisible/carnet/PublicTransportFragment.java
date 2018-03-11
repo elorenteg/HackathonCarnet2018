@@ -53,11 +53,14 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
     }
 
     public void updateInfo(double lat, double lng){
-        ArrayList<StopNextRoutes> nextRoutes = NearSitesController.getInstance().getAsyncTaskTP().getNextRoutes();
-        Point p = new Point(lat, lng);
+        ArrayList<StopNextRoutes> nextRoutes = NearSitesController.getInstance().getAsyncTaskTP().getNextRoutes(lat, lng);
+
+        if(((LinearLayout) linearLayout).getChildCount() > 0)
+            ((LinearLayout) linearLayout).removeAllViews();
 
         for (StopNextRoutes stopNextRoutes : nextRoutes) {
-            String text = stopNextRoutes.getStopname();
+            String text = stopNextRoutes.getStopname() + " - " + String.format("%.2f", stopNextRoutes.getDistance()) + " km";
+
             TextView textView = new TextView(getContext());
             linearLayout.addView(textView);
             textView.setText(text);
@@ -65,7 +68,7 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
 
             for (RouteTime routeTime : stopNextRoutes.getRoutes()) {
                 Calendar now = Calendar.getInstance();
-                int hour = now.get(Calendar.HOUR);
+                int hour = now.get(Calendar.HOUR_OF_DAY);
                 int minute = now.get(Calendar.MINUTE);
                 Date dateNow = DateUtils.parseDate(hour + ":" + minute);
 
