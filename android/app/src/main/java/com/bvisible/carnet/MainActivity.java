@@ -1,6 +1,7 @@
 package com.bvisible.carnet;
 
 import android.Manifest;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -19,6 +20,9 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.util.List;
 
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
+
 public class MainActivity extends AppCompatActivity implements BluetoothController.ReadReceived, BluetoothController.BluetoothStatus {
 
     private static final String GRAPH_DATABASE_NAME = "imdb.gdb";
@@ -29,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
 
     private BluetoothController.ReadReceived readReceivedCallback = this;
     private BluetoothController.BluetoothStatus bluetoothStatusCallback = this;
+    private Location lastLocation;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -90,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
 
                 if (allPermissionsChecked) {
                     //startBluetooth();
+                    getLocation();
                     NearSitesController.getInstance().openGDB(getApplicationContext());
                 }
             }
@@ -108,6 +114,25 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
 
     private void stopBluetooth() {
         BluetoothController.getInstance(this).stopService();
+    }
+
+    private void getLocation() {
+        SmartLocation.with(getApplicationContext()).location()
+                .start(new OnLocationUpdatedListener() {
+                    @Override
+                    public void onLocationUpdated(Location location) {
+                        Log.e(TAG, "Location updated: " + location.getLatitude() + ", " + location.getLongitude());
+                        lastLocation = location;
+                    }
+                });
+    }
+
+    public boolean existsLastLocation() {
+        return lastLocation != null;
+    }
+
+    public Location getLastLocation() {
+        return lastLocation;
     }
 
     @Override
