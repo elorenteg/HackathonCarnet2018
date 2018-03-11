@@ -56,7 +56,7 @@ void loop(){
   // Gestion del boton
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
-    BT.write("Apretado\r");
+    BT.write("BOTON_APRETADO\r");
   }
 
   // Gestion del sensor de shock
@@ -64,7 +64,7 @@ void loop(){
   if (shockState == LOW) {
     lastShockTime = millis();
     if (!bAlarm) {
-      BT.write("Agitado\r");
+      BT.write("SHOCK_AGITADO\r");
       bAlarm = true;
     }
   } else {
