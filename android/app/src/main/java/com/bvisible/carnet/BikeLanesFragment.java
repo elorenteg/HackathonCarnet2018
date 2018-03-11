@@ -1,5 +1,6 @@
 package com.bvisible.carnet;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,6 +25,7 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
     private View rootView;
     private Button buttonPalau;
     private Button buttonIlla;
+    private Button buttonCurrent;
     private LinearLayout linearLayout;
 
     private AsyncResponse asyncResponse;
@@ -44,12 +46,12 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
         return rootView;
     }
 
-    public void updateInfo(double lat, double lng){
+    public void updateInfo(double lat, double lng) {
         ArrayList<BikeLane> bikelanes = NearSitesController.getInstance().getAsyncTaskBikes().getBikes();
         Point p = new Point(lat, lng);
 
-        if(((LinearLayout) linearLayout).getChildCount() > 0)
-            ((LinearLayout) linearLayout).removeAllViews();
+        if (linearLayout.getChildCount() > 0)
+            linearLayout.removeAllViews();
 
         ArrayList<String> lanes = new ArrayList<>();
         for (BikeLane bikelane : bikelanes) {
@@ -70,9 +72,10 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
     }
 
     private void setUpElements() {
-        buttonPalau = (Button) rootView.findViewById(R.id.secondary_fragment_palau);
-        buttonIlla = (Button) rootView.findViewById(R.id.secondary_fragment_illa);
-        linearLayout = (LinearLayout) rootView.findViewById(R.id.secondary_fragment_linearlayout);
+        buttonCurrent = rootView.findViewById(R.id.secondary_fragment_current);
+        buttonPalau = rootView.findViewById(R.id.secondary_fragment_palau);
+        buttonIlla = rootView.findViewById(R.id.secondary_fragment_illa);
+        linearLayout = rootView.findViewById(R.id.secondary_fragment_linearlayout);
     }
 
     private void setUpListeners() {
@@ -84,6 +87,14 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
         buttonIlla.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 NearSitesController.getInstance().queryBikesGraph(Constants.LAT_ILLA, Constants.LNG_ILLA, asyncResponse);
+            }
+        });
+        buttonCurrent.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (((MainActivity) getActivity()).existsLastLocation()) {
+                    Location location = ((MainActivity) getActivity()).getLastLocation();
+                    NearSitesController.getInstance().queryBikesGraph(location.getLatitude(), location.getLongitude(), asyncResponse);
+                }
             }
         });
     }

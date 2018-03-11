@@ -1,6 +1,6 @@
 package com.bvisible.carnet;
 
-import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,13 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bvisible.carnet.controllers.NearSitesController;
-import com.bvisible.carnet.models.BikeLane;
 import com.bvisible.carnet.models.RouteTime;
 import com.bvisible.carnet.models.StopNextRoutes;
 import com.bvisible.carnet.utils.Constants;
 import com.bvisible.carnet.utils.DateUtils;
-import com.bvisible.carnet.utils.Point;
-import com.bvisible.carnet.utils.PointUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,7 +29,8 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
     private View rootView;
     private Button buttonPalau;
     private Button buttonIlla;
-    private LinearLayout linearLayout;
+    private Button buttonCurrent;
+    private LinearLayout dataLayout;
 
     private AsyncResponse asyncResponse;
 
@@ -52,17 +50,17 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
         return rootView;
     }
 
-    public void updateInfo(double lat, double lng){
+    public void updateInfo(double lat, double lng) {
         ArrayList<StopNextRoutes> nextRoutes = NearSitesController.getInstance().getAsyncTaskTP().getNextRoutes(lat, lng);
 
-        if(((LinearLayout) linearLayout).getChildCount() > 0)
-            ((LinearLayout) linearLayout).removeAllViews();
+        if (dataLayout.getChildCount() > 0)
+            dataLayout.removeAllViews();
 
         for (StopNextRoutes stopNextRoutes : nextRoutes) {
             String text = stopNextRoutes.getStopname() + " - " + String.format("%.2f", stopNextRoutes.getDistance()) + " km";
 
             TextView textView = new TextView(getContext());
-            linearLayout.addView(textView);
+            dataLayout.addView(textView);
             textView.setText(text);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
@@ -78,7 +76,7 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                     String text2 = "  " + routeTime.getName() + " " + sdf.format(routeTime.getDate());
                     TextView textView2 = new TextView(getContext());
-                    linearLayout.addView(textView2);
+                    dataLayout.addView(textView2);
                     textView2.setText(text2);
                     textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 }
@@ -87,9 +85,10 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
     }
 
     private void setUpElements() {
-        buttonPalau = (Button) rootView.findViewById(R.id.third_fragment_palau);
-        buttonIlla = (Button) rootView.findViewById(R.id.third_fragment_illa);
-        linearLayout = (LinearLayout) rootView.findViewById(R.id.third_fragment_linearlayout);
+        buttonCurrent = rootView.findViewById(R.id.third_fragment_current);
+        buttonPalau = rootView.findViewById(R.id.third_fragment_palau);
+        buttonIlla = rootView.findViewById(R.id.third_fragment_illa);
+        dataLayout = rootView.findViewById(R.id.third_fragment_linearlayout);
     }
 
     private void setUpListeners() {
@@ -101,6 +100,14 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
         buttonIlla.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 NearSitesController.getInstance().queryTPGraph(Constants.LAT_ILLA, Constants.LNG_ILLA, asyncResponse);
+            }
+        });
+        buttonCurrent.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (((MainActivity) getActivity()).existsLastLocation()) {
+                    Location location = ((MainActivity) getActivity()).getLastLocation();
+                    NearSitesController.getInstance().queryTPGraph(location.getLatitude(), location.getLongitude(), asyncResponse);
+                }
             }
         });
     }
