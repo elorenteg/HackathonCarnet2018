@@ -27,7 +27,7 @@ import java.util.Locale;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 
-public class MainActivity extends AppCompatActivity implements AsyncResponse, BluetoothController.ReadReceived, BluetoothController.BluetoothStatus {
+public class MainActivity extends AppCompatActivity implements BluetoothController.ReadReceived, BluetoothController.BluetoothStatus {
 
     private static final String GRAPH_DATABASE_NAME = "imdb.gdb";
     //permissions
@@ -116,14 +116,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
     }
 
     private void audioRecognison() {
-        promptSpeechInput();
-
-        if (lastLocation != null) {
-            NearSitesController.getInstance().queryBikesGraph(lastLocation.getLatitude(), lastLocation.getLongitude(), asyncResponse);
-        }
-    }
-
-    private void promptSpeechInput() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -200,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         if (valueReceived.equals("BOTON_APRETADO")) {
 
         } else if (valueReceived.equals("SHOCK_AGITADO")) {
-
+            audioRecognison();
         }
     }
 
@@ -221,23 +213,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
                 }
                 break;
             }
-        }
-    }
-
-    @Override
-    public void processFinish(String typeAsync) {
-        boolean update = false;
-        double lat = -1;
-        double lng = -1;
-        if (typeAsync.equals("BIKES")) {
-            update = true;
-            lat = NearSitesController.getInstance().getLatitude();
-            lng = NearSitesController.getInstance().getLongitude();
-        }
-        Log.e(TAG, typeAsync);
-
-        if (update) {
-
         }
     }
 }

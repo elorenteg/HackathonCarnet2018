@@ -31,9 +31,20 @@ int buttonState = 0;
 const int shockPin = 6;
 int shockState = 0;
 
+const int ledPin = 3;
+
+const int motorPin = 4;
+
 void setup(){
   pinMode(buttonPin, INPUT);
   pinMode(shockPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, HIGH);
+
+  pinMode(motorPin, OUTPUT);
+  digitalWrite(motorPin, HIGH);
+  delay(1000);
+  digitalWrite(motorPin, LOW);
   
   BT.begin(9600);       // Inicializamos el puerto serie BT que hemos creado
   Serial.begin(9600);   // Inicializamos el puerto serie
