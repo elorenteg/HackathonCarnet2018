@@ -5,9 +5,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.bvisible.carnet.AsyncResponse;
+import com.bvisible.carnet.models.RouteTime;
+import com.bvisible.carnet.models.StopNextRoutes;
 import com.bvisible.carnet.schemas.TPSchema;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
+import com.bvisible.carnet.utils.DateUtils;
 import com.sparsity.sparksee.gdb.Condition;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.EdgesDirection;
@@ -21,6 +24,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -196,5 +200,31 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
 
     public ArrayList<Stop> getRoutes() {
         return stops;
+    }
+
+    public ArrayList<StopNextRoutes> getNextRoutes() {
+        ArrayList<Stop> stops = getRoutes();
+        ArrayList<StopNextRoutes> stopNextRoutesArray = new ArrayList<>();
+
+        for (Stop stop : stops) {
+            StopNextRoutes stopNextRoutes = new StopNextRoutes();
+            stopNextRoutes.setStopid(stop.getId());
+            stopNextRoutes.setStopname(stop.getName());
+            ArrayList<RouteTime> routetimes = new ArrayList<>();
+            for (Route route : stop.getRoutes()) {
+                for (String time : route.getTimetable()) {
+                    RouteTime routeTime = new RouteTime();
+                    routeTime.setName(route.getShortname());
+                    routeTime.setDate(DateUtils.parseDate(time));
+                    routetimes.add(routeTime);
+                }
+            }
+            Collections.sort(routetimes);
+            stopNextRoutes.setRoutes(routetimes);
+            stopNextRoutesArray.add(stopNextRoutes);
+            Log.e(TAG, stopNextRoutes.toString());
+        }
+
+        return stopNextRoutesArray;
     }
 }

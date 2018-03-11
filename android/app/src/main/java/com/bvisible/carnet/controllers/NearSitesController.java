@@ -28,6 +28,9 @@ public class NearSitesController {
     private TPGraphDatabase tpGraphDB;
     private BikeGraphDatabase bikeGraphDB;
 
+    private double latitude = -1;
+    private double longitude = -1;
+
     public NearSitesController() {
     }
 
@@ -64,6 +67,8 @@ public class NearSitesController {
     }
 
     public void queryTPGraph(double lat, double lng) {
+        this.latitude = lat;
+        this.longitude = lng;
         try {
             asyncTaskTP.queryGraph(tpGraphDB, lat, lng);
         } catch (IOException e) {
@@ -72,78 +77,13 @@ public class NearSitesController {
     }
 
     public void queryBikesGraph(double lat, double lng) {
+        this.latitude = lat;
+        this.longitude = lng;
         try {
             asyncTaskBikes.queryGraph(bikeGraphDB, lat, lng);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private ArrayList<StopNextRoutes> getNextRoutes() {
-        ArrayList<Stop> stops = asyncTaskTP.getRoutes();
-        ArrayList<StopNextRoutes> stopNextRoutesArray = new ArrayList<>();
-
-        for (Stop stop : stops) {
-            StopNextRoutes stopNextRoutes = new StopNextRoutes();
-            stopNextRoutes.setStopid(stop.getId());
-            stopNextRoutes.setStopname(stop.getName());
-            ArrayList<RouteTime> routetimes = new ArrayList<>();
-            for (Route route : stop.getRoutes()) {
-                for (String time : route.getTimetable()) {
-                    RouteTime routeTime = new RouteTime();
-                    routeTime.setName(route.getShortname());
-                    routeTime.setDate(DateUtils.parseDate(time));
-                    routetimes.add(routeTime);
-                }
-            }
-            Collections.sort(routetimes);
-            stopNextRoutes.setRoutes(routetimes);
-            stopNextRoutesArray.add(stopNextRoutes);
-            Log.e(TAG, stopNextRoutes.toString());
-        }
-
-        return stopNextRoutesArray;
-    }
-
-    public String getTPtext() {
-        ArrayList<StopNextRoutes> nextRoutes = getNextRoutes();
-
-        Log.e(TAG, getNextRoutes().size() + " ");
-
-        String text = "";
-        for (StopNextRoutes stopNextRoutes : nextRoutes) {
-            text += stopNextRoutes.getStopname() + "\n";
-            for (RouteTime routeTime : stopNextRoutes.getRoutes()) {
-                Calendar now = Calendar.getInstance();
-                int hour = now.get(Calendar.HOUR);
-                int minute = now.get(Calendar.MINUTE);
-                Date dateNow = DateUtils.parseDate(hour + ":" + minute);
-
-                long different = dateNow.getTime() - routeTime.getDate().getTime();
-                int elapsedHours = (int) different / (1000 * 60 * 60);
-                if (elapsedHours >= 0 && elapsedHours < 1 && dateNow.before(routeTime.getDate())) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                    text += "  " + routeTime.getName() + " " + sdf.format(routeTime.getDate()) + "\n";
-                    //Log.e(TAG, elapsedHours + "");
-                }
-            }
-        }
-
-        return text;
-    }
-
-    public String getBikesText() {
-        ArrayList<BikeLane> bikelanes = asyncTaskBikes.getBikes();
-
-        String text = "";
-        for (BikeLane bikelane : bikelanes) {
-            text += bikelane.getName() +
-                    "[" + bikelane.getLat1() + "," + bikelane.getLng1() + "] - " +
-                    "[" + bikelane.getLat2() + "," + bikelane.getLng2() + "]" +
-                    "\n";
-        }
-
-        return text;
     }
 
     public TPGraphQueryNearTP getAsyncTaskTP() {
@@ -152,5 +92,13 @@ public class NearSitesController {
 
     public BikeGraphQueryNear getAsyncTaskBikes() {
         return asyncTaskBikes;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 }

@@ -135,33 +135,32 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
     @Override
     public void processFinish(String typeAsync) {
         Log.e(TAG, "SEFINI " + typeAsync);
-        String text = "";
+        double lat = -1;
+        double lng = -1;
         boolean update = false;
         boolean updateStops = false;
         boolean updateBikes = false;
         if (typeAsync.equals("STOPS")) {
             update = true;
             updateStops = true;
-            text = NearSitesController.getInstance().getTPtext();
-            Log.e(TAG, text);
         } else if (typeAsync.equals("BIKES")) {
             update = true;
             updateBikes = true;
-            text = NearSitesController.getInstance().getBikesText();
-            Log.e(TAG, text);
         }
+        lat = NearSitesController.getInstance().getLatitude();
+        lng = NearSitesController.getInstance().getLongitude();
 
         if (update) {
             if (currentFragmentTAG == SecondaryFragment.TAG && updateBikes) {
                 SecondaryFragment secondaryFragment = (SecondaryFragment) getSupportFragmentManager().findFragmentByTag(currentFragmentTAG);
                 if (secondaryFragment != null) {
-                    secondaryFragment.updateInfo(getApplicationContext(), text);
+                    secondaryFragment.updateInfo(getApplicationContext(), lat, lng);
                 }
             }
             else if (currentFragmentTAG == ThirdFragment.TAG && updateStops) {
                 ThirdFragment thirdFragment = (ThirdFragment) getSupportFragmentManager().findFragmentByTag(currentFragmentTAG);
                 if (thirdFragment != null) {
-                    thirdFragment.updateInfo(text);
+                    thirdFragment.updateInfo(getApplicationContext(), lat, lng);
                 }
             }
         }

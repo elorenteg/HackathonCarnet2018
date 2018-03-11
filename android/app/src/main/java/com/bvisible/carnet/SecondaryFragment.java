@@ -40,9 +40,9 @@ public class SecondaryFragment extends Fragment {
         return rootView;
     }
 
-    public void updateInfo(Context context, String tt){
+    public void updateInfo(Context context, double lat, double lng){
         ArrayList<BikeLane> bikelanes = NearSitesController.getInstance().getAsyncTaskBikes().getBikes();
-        Point p = new Point(Constants.LAT_PALAU, Constants.LNG_PALAU);
+        Point p = new Point(lat, lng);
 
         ArrayList<String> lanes = new ArrayList<>();
         for (BikeLane bikelane : bikelanes) {

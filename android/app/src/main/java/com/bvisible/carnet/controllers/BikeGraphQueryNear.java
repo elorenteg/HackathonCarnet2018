@@ -126,8 +126,6 @@ public class BikeGraphQueryNear extends AsyncTask<Void, Void, String> {
         bikelane.setLat2(lanelat2value.getDouble());
         bikelane.setLng2(lanelng2value.getDouble());
 
-        Log.e(TAG, bikelane.toString());
-
         //Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
 
         return bikelane;
