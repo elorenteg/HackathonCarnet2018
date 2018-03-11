@@ -4,6 +4,8 @@ SoftwareSerial BT(10,11);    // Definimos los pines RX y TX del Arduino conectad
 void setup(){
   BT.begin(9600);       // Inicializamos el puerto serie BT que hemos creado
   Serial.begin(9600);   // Inicializamos el puerto serie
+
+  Serial.println("Start BT, Name is HC-06, MAC is 20:15:10:20:04:46");
 }
 
 void manageBT() {

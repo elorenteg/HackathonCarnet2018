@@ -32,4 +32,5 @@ dependencies {
 
     compile 'com.karumi:dexter:4.2.0'
     compile 'com.android.volley:volley:1.0.0'
+    compile 'com.akexorcist:bluetoothspp:1.0.0'
 }

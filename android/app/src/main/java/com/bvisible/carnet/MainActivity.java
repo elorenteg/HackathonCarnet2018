@@ -20,7 +20,6 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
     private static final String GRAPH_DATABASE_NAME = "imdb.gdb";
     public static String TAG = "MainActivity";
     private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
-    private BluetoothController bluetoothController;
     TPGraphQueryNearTP asyncTask;
 
     private TextView mTextMessage;
@@ -131,13 +129,12 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
     }
 
     private void startBluetooth() {
-        bluetoothController = BluetoothController.getInstance(this);
-        bluetoothController.startServices();
-        bluetoothController.setCallbacks(bluetoothStatusCallback, readReceivedCallback);
+        BluetoothController.getInstance(this).startService();
+        BluetoothController.getInstance(this).setCallbacks(this, this);
     }
 
     private void stopBluetooth() {
-        bluetoothController.stopAll();
+        BluetoothController.getInstance(this).stopService();
     }
 
     @Override
@@ -148,7 +145,29 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
 
     @Override
     public void onBluetoothChanged(int bluetoothStatus) {
-        Log.e(TAG, "BluetoothStatus: " + bluetoothStatus);
+        switch (bluetoothStatus) {
+            case BluetoothController.BLUETOOTH_CONNECTING:
+                Log.e(TAG, "BLUETOOTH_CONNECTING");
+
+                break;
+            case BluetoothController.BLUETOOTH_CONNECTED:
+                Log.e(TAG, "BLUETOOTH_CONNECTED");
+                BluetoothController.getInstance(this).sendData("Message from the phone");
+
+                break;
+            case BluetoothController.BLUETOOTH_READY:
+                Log.e(TAG, "BLUETOOTH_READY");
+
+                break;
+            case BluetoothController.BLUETOOTH_DISCONNECTED:
+                Log.e(TAG, "BLUETOOTH_DISCONNECTED");
+
+                break;
+            case BluetoothController.BLUETOOTH_FAILED:
+                Log.e(TAG, "BLUETOOTH_FAILED");
+
+                break;
+        }
     }
 
     @Override
