@@ -11,6 +11,11 @@ public class BluetoothController {
     public static final int BLUETOOTH_READY = 3;
     public static final int BLUETOOTH_DISCONNECTED = 4;
     public static final int BLUETOOTH_FAILED = 5;
+
+    public static final String SEND_PALO_HELLO = "#ACK#";
+    public static final String SEND_PALO_VIBRATION = "#VIBRATE#";
+    public static final String SEND_PALO_LED = "#LED#";
+    public static final String SEND_PALO_OLED = "#OLED#";
     private static final String TAG = BluetoothController.class.getSimpleName();
     private static BluetoothController instance;
     public final String hc06Bluetooth = "20:15:10:20:04:46";
@@ -87,8 +92,8 @@ public class BluetoothController {
         });
     }
 
-    public void sendData(String message) {
-        bluetoothSPP.send(message, true);
+    public void sendData(String code, String message) {
+        bluetoothSPP.send(code + message, true);
     }
 
     public void stopService() {

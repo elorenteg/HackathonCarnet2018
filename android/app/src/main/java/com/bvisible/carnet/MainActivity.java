@@ -125,7 +125,8 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
                 break;
             case BluetoothController.BLUETOOTH_CONNECTED:
                 Log.e(TAG, "BLUETOOTH_CONNECTED");
-                BluetoothController.getInstance(this).sendData("Message from the phone");
+                BluetoothController.getInstance(this)
+                        .sendData(BluetoothController.SEND_PALO_HELLO, "Message from the phone");
 
                 break;
             case BluetoothController.BLUETOOTH_READY:
@@ -146,5 +147,10 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
     @Override
     public void onReadReceived(String valueReceived) {
         Log.e(TAG, "ReadReceived: " + valueReceived);
+        if (valueReceived.equals("BOTON_APRETADO")) {
+
+        } else if (valueReceived.equals("SHOCK_AGITADO")) {
+
+        }
     }
 }
