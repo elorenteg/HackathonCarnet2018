@@ -73,15 +73,14 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
                 Date dateNow = DateUtils.parseDate(hour + ":" + minute);
 
                 long different = dateNow.getTime() - routeTime.getDate().getTime();
-                int elapsedHours = (int) different / (1000 * 60 * 60);
-                if (elapsedHours >= 0 && elapsedHours < 1 && dateNow.before(routeTime.getDate())) {
+                double elapsedHours = (double) different / (1000 * 60 * 60);
+                if (elapsedHours >= 0 && elapsedHours < 1.1) {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                     String text2 = "  " + routeTime.getName() + " " + sdf.format(routeTime.getDate());
                     TextView textView2 = new TextView(getContext());
                     linearLayout.addView(textView2);
                     textView2.setText(text2);
                     textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-                    Log.e(TAG, dateNow.toString() + "   ///    " + sdf.format(routeTime.getDate()));
                 }
             }
         }
