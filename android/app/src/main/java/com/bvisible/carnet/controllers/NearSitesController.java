@@ -145,4 +145,12 @@ public class NearSitesController {
 
         return text;
     }
+
+    public TPGraphQueryNearTP getAsyncTaskTP() {
+        return asyncTaskTP;
+    }
+
+    public BikeGraphQueryNear getAsyncTaskBikes() {
+        return asyncTaskBikes;
+    }
 }

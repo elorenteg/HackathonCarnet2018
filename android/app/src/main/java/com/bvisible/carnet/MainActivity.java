@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
             if (currentFragmentTAG == SecondaryFragment.TAG && updateBikes) {
                 SecondaryFragment secondaryFragment = (SecondaryFragment) getSupportFragmentManager().findFragmentByTag(currentFragmentTAG);
                 if (secondaryFragment != null) {
-                    secondaryFragment.updateInfo(text);
+                    secondaryFragment.updateInfo(getApplicationContext(), text);
                 }
             }
             else if (currentFragmentTAG == ThirdFragment.TAG && updateStops) {
