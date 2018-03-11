@@ -2,16 +2,14 @@ package com.bvisible.carnet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 public class MainFragment extends Fragment {
     public static final String TAG = MainFragment.class.getSimpleName();
     private View rootView;
-    private Button button;
-    private Button button2;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -30,11 +28,13 @@ public class MainFragment extends Fragment {
     }
 
     private void setUpElements() {
-        button = rootView.findViewById(R.id.main_fragment_palau);
-        button2 = rootView.findViewById(R.id.main_fragment_illa);
     }
 
     private void setUpListeners() {
 
+    }
+
+    public void newVoiceMessage(String message) {
+        Log.e(TAG, message);
     }
 }
