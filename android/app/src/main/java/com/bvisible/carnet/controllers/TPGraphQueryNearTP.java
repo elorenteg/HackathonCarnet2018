@@ -24,6 +24,7 @@ import com.sparsity.sparksee.gdb.ObjectsIterator;
 import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Value;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -131,7 +132,7 @@ public class TPGraphQueryNearTP {
                         stopRoutes.add(route);
                     }
                     stop.setRoutes(stopRoutes);
-                    Log.e(TAG, stop.toString());
+                    //Log.e(TAG, stop.toString());
                     stops.add(stop);
                 }
             }
@@ -237,10 +238,44 @@ public class TPGraphQueryNearTP {
             Collections.sort(routetimes);
             stopNextRoutes.setRoutes(routetimes);
             stopNextRoutesArray.add(stopNextRoutes);
-            Log.e(TAG, stopNextRoutes.toString());
+            //Log.e(TAG, stopNextRoutes.toString());
         }
         Collections.sort(stopNextRoutesArray);
 
         return stopNextRoutesArray;
+    }
+
+    public String timeToRoute(double latitude, double longitude, String routename) {
+        String nexthour = "";
+        boolean routeFound = false;
+        double minDifference = 24;
+        ArrayList<StopNextRoutes> stopNextRoutesArray = getNextRoutes(latitude, longitude);
+
+        Calendar now = Calendar.getInstance();
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+        int minute = now.get(Calendar.MINUTE);
+        Date dateNow = DateUtils.parseDate(hour + ":" + minute);
+
+        for (int i = 0; !routeFound & i < stops.size(); ++i) {
+            Stop stop = stops.get(i);
+            for (int j = 0; !routeFound & j < stop.getRoutes().size(); ++j) {
+                Route route = stop.getRoutes().get(j);
+                if (routename.equals(route.getShortname())) {
+                    for(int k = 0; k < route.getTimetable().size(); ++k) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                        String time = route.getTimetable().get(k);
+                        long different = dateNow.getTime() - DateUtils.parseDate(time).getTime();
+                        double elapsedHours = (double) different / (1000 * 60 * 60);
+                        if (elapsedHours >= 0 && elapsedHours < minDifference) {
+                            nexthour = time;
+                            minDifference = elapsedHours;
+                            routeFound = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return nexthour;
     }
 }
