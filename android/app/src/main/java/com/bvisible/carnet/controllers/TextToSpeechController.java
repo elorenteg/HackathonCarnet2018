@@ -21,7 +21,7 @@ public class TextToSpeechController {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    Locale loc = new Locale("es", "ES");
+                    Locale loc = new Locale("en", "EN");
                     textToSpeech.setLanguage(loc);
                     textToSpeechInitialized = true;
                 }

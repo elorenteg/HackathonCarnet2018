@@ -33,15 +33,14 @@ int shockState = 0;
 
 const int ledPin = 3;
 
-const int motorPin = 4;
+const int motorPin = 5;
 
 void setup(){
   pinMode(buttonPin, INPUT);
   pinMode(shockPin, INPUT);
   pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, HIGH);
-
   pinMode(motorPin, OUTPUT);
+  
   digitalWrite(motorPin, HIGH);
   delay(1000);
   digitalWrite(motorPin, LOW);
@@ -56,6 +55,13 @@ void loop(){
   // Gestion del BT
   // Si llega un dato por el puerto BT se envía al monitor serial
   if(BT.available()){
+    int lectura = BT.read();
+    if (lectura == 2) {
+      Serial.write("IN");
+      digitalWrite(motorPin, HIGH);
+      delay(2000);
+      digitalWrite(motorPin, LOW);
+    }
     Serial.write(BT.read());
   }
 
@@ -76,11 +82,17 @@ void loop(){
     lastShockTime = millis();
     if (!bAlarm) {
       BT.write("SHOCK_AGITADO\r");
+      digitalWrite(ledPin, HIGH);
+      
+      digitalWrite(motorPin, HIGH);
+      delay(1000);
+      digitalWrite(motorPin, LOW);
       bAlarm = true;
     }
   } else {
     if((millis()-lastShockTime) > shockAlarmTime && bAlarm) {
       bAlarm = false;
+      digitalWrite(ledPin, LOW);
     }
   }
 }

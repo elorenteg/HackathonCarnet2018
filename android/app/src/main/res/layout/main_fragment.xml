@@ -18,11 +18,24 @@
             android:layout_height="wrap_content"
             android:text="Speak to search something: " />
 
-        <LinearLayout
-            android:id="@+id/main_fragment_linearlayout"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/main_fragment_result_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="6"
-            android:orientation="vertical" />
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/main_fragment_simulate_shock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Simulate shock" />
+
+        <Button
+            android:id="@+id/main_fragment_send_notification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send notification" />
+
     </LinearLayout>
 </LinearLayout>

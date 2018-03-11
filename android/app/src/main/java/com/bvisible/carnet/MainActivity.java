@@ -101,10 +101,9 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
                 boolean allPermissionsChecked = report.getGrantedPermissionResponses().size() == permissions;
 
                 if (allPermissionsChecked) {
-                    //startBluetooth();
+                    startBluetooth();
                     getLocation();
                     NearSitesController.getInstance().openGDB(getApplicationContext());
-                    audioRecognison();
                 }
             }
 
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
         }).check();
     }
 
-    private void audioRecognison() {
+    public void audioRecognison() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
