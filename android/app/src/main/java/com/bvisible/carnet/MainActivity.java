@@ -4,10 +4,10 @@ import android.Manifest;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.bvisible.carnet.controllers.BikeGraphDatabase;
 import com.bvisible.carnet.controllers.BikeGraphQueryNear;
@@ -19,6 +19,7 @@ import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.RouteTime;
 import com.bvisible.carnet.models.Stop;
 import com.bvisible.carnet.models.StopNextRoutes;
+import com.bvisible.carnet.utils.DateUtils;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -31,8 +32,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AsyncResponse, BluetoothController.ReadReceived, BluetoothController.BluetoothStatus {
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
     BikeGraphQueryNear asyncTaskBikes;
     TPGraphQueryNearTP asyncTask;
 
-    private TextView mTextMessage;
     private BluetoothController.ReadReceived readReceivedCallback = this;
     private BluetoothController.BluetoothStatus bluetoothStatusCallback = this;
 
@@ -55,16 +53,24 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment selectedFragment = null;
+
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
+                    selectedFragment = MainFragment.newInstance();
+                    break;
                 case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
+                    selectedFragment = SecondaryFragment.newInstance();
+                    break;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
+                    //selectedFragment = MainFragment.newInstance();
+
+                    break;
+            }
+
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                return true;
             }
             return false;
         }
@@ -78,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        setUpElements();
+        navigation.setSelectedItemId(R.id.navigation_home);
 
         asyncTaskTP = new TPGraphQueryNearTP(getApplicationContext());
         asyncTaskBikes = new BikeGraphQueryNear(getApplicationContext());
@@ -86,10 +92,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         asyncTaskBikes.delegate = this;
 
         requestFileAccessPermission();
-    }
-
-    private void setUpElements() {
-        mTextMessage = findViewById(R.id.message);
     }
 
     private void requestFileAccessPermission() {
@@ -107,8 +109,8 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
                 boolean allPermissionsChecked = report.getGrantedPermissionResponses().size() == permissions;
 
                 if (allPermissionsChecked) {
-                    startBluetooth();
-                    openGDB();
+                    //startBluetooth();
+                    //openGDB();
                 }
             }
 
@@ -149,22 +151,20 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
                     Calendar now = Calendar.getInstance();
                     int hour = now.get(Calendar.HOUR);
                     int minute = now.get(Calendar.MINUTE);
-                    Date dateNow = parseDate(hour + ":" + minute);
+                    Date dateNow = DateUtils.parseDate(hour + ":" + minute);
 
                     long different = dateNow.getTime() - routeTime.getDate().getTime();
-                    int elapsedHours = (int) different / (1000*60*60);
+                    int elapsedHours = (int) different / (1000 * 60 * 60);
                     if (elapsedHours >= 0 && elapsedHours < 1 && dateNow.before(routeTime.getDate())) {
                         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                         text += "  " + routeTime.getName() + " " + sdf.format(routeTime.getDate()) + "\n";
                         Log.e(TAG, elapsedHours + "");
-                    }
-                    else {
+                    } else {
                         Log.e(TAG, "dd");
                         Log.e(TAG, elapsedHours + "");
                     }
                 }
             }
-            mTextMessage.setText(text);
         } else if (typeAsync.equals("BIKES")) {
             ArrayList<BikeLane> bikelanes = asyncTaskBikes.getBikes();
             Log.e(TAG, bikelanes.toString());
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
                 for (String time : route.getTimetable()) {
                     RouteTime routeTime = new RouteTime();
                     routeTime.setName(route.getShortname());
-                    routeTime.setDate(parseDate(time));
+                    routeTime.setDate(DateUtils.parseDate(time));
                     routetimes.add(routeTime);
                 }
             }
@@ -195,17 +195,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         }
 
         return stopNextRoutesArray;
-    }
-
-    private Date parseDate(String date) {
-        String inputFormat = "HH:mm";
-        SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat, Locale.US);
-
-        try {
-            return inputParser.parse(date);
-        } catch (java.text.ParseException e) {
-            return new Date(0);
-        }
     }
 
     private void startBluetooth() {
