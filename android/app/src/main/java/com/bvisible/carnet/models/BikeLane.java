@@ -2,11 +2,12 @@ package com.bvisible.carnet.models;
 
 public class BikeLane {
     private String id;
+    private String cid;
     private String name;
-    private String lat1;
-    private String lng1;
-    private String lat2;
-    private String lng2;
+    private double lat1;
+    private double lng1;
+    private double lat2;
+    private double lng2;
 
     public String getId() {
         return id;
@@ -14,6 +15,14 @@ public class BikeLane {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getCid() {
+        return cid;
+    }
+
+    public void setCid(String cid) {
+        this.cid = cid;
     }
 
     public String getName() {
@@ -24,35 +33,35 @@ public class BikeLane {
         this.name = name;
     }
 
-    public String getLat1() {
+    public double getLat1() {
         return lat1;
     }
 
-    public void setLat1(String lat1) {
+    public void setLat1(double lat1) {
         this.lat1 = lat1;
     }
 
-    public String getLng1() {
+    public double getLng1() {
         return lng1;
     }
 
-    public void setLng1(String lng1) {
+    public void setLng1(double lng1) {
         this.lng1 = lng1;
     }
 
-    public String getLat2() {
+    public double getLat2() {
         return lat2;
     }
 
-    public void setLat2(String lat2) {
+    public void setLat2(double lat2) {
         this.lat2 = lat2;
     }
 
-    public String getLng2() {
+    public double getLng2() {
         return lng2;
     }
 
-    public void setLng2(String lng2) {
+    public void setLng2(double lng2) {
         this.lng2 = lng2;
     }
 

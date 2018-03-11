@@ -7,6 +7,7 @@ public class BikeSchema {
     private int laneType            = Type.InvalidType;
 
     private int laneIdType          = Type.InvalidType;
+    private int laneCidType        = Type.InvalidType;
     private int laneNameType        = Type.InvalidType;
     private int laneLat1Type        = Type.InvalidType;
     private int laneLon1Type        = Type.InvalidType;
@@ -18,6 +19,7 @@ public class BikeSchema {
         laneType = graph.findType("lane");
 
         laneIdType = graph.findAttribute(laneType,"id");
+        laneCidType = graph.findAttribute(laneType,"cid");
         laneNameType = graph.findAttribute(laneType,"name");
         laneLat1Type = graph.findAttribute(laneType,"lat1");
         laneLon1Type = graph.findAttribute(laneType,"lng1");
@@ -31,6 +33,10 @@ public class BikeSchema {
 
     public int getLaneIdType() {
         return laneIdType;
+    }
+
+    public int getLaneCidType() {
+        return laneCidType;
     }
 
     public int getLaneNameType() {

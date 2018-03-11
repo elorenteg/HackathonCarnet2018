@@ -70,15 +70,14 @@ public class BikeGraphQueryNear {
             return "";
         }
 
-        @Override
         protected void onPostExecute(String string) {
             Log.e(TAG, "SEFINI");
             responseCallback.processFinish("BIKES");
         }
 
         private void loadBikelanes(Graph graph, BikeSchema BikeSchema) {
-            double diffLat = 0.005;
-            double diffLng = 0.005;
+            double diffLat = 0.05;
+            double diffLng = 0.05;
 
             double minLat = lat - diffLat;
             double maxLat = lat + diffLat;
@@ -91,13 +90,13 @@ public class BikeGraphQueryNear {
             Value value2 = new Value();
 
             Objects castNearBikelanesLat1 = graph.select(BikeSchema.getLaneLat1Type(), Condition.Between,
-                    value1.setString(String.valueOf(minLat)), value2.setString(String.valueOf(maxLat)));
+                    value1.setDouble(minLat), value2.setDouble(maxLat));
             Objects castNEarBikelanesLng1 = graph.select(BikeSchema.getLaneLon1Type(), Condition.Between,
-                    value1.setString(String.valueOf(minLng)), value2.setString(String.valueOf(maxLng)));
+                    value1.setDouble(minLng), value2.setDouble(maxLng));
             Objects castNearBikelanesLat2 = graph.select(BikeSchema.getLaneLat2Type(), Condition.Between,
-                    value1.setString(String.valueOf(minLat)), value2.setString(String.valueOf(maxLat)));
+                    value1.setDouble(minLat), value2.setDouble(maxLat));
             Objects castNEarBikelanesLng2 = graph.select(BikeSchema.getLaneLon2Type(), Condition.Between,
-                    value1.setString(String.valueOf(minLng)), value2.setString(String.valueOf(maxLng)));
+                    value1.setDouble(minLng), value2.setDouble(maxLng));
             Objects nearBikelanes1 = Objects.combineIntersection(castNearBikelanesLat1, castNEarBikelanesLng1);
             Objects nearBikelanes2 = Objects.combineIntersection(castNearBikelanesLat2, castNEarBikelanesLng2);
             nearBikelanes = Objects.combineUnion(nearBikelanes1, nearBikelanes2);
@@ -113,12 +112,14 @@ public class BikeGraphQueryNear {
 
         private BikeLane getBikelane(Graph graph, BikeSchema BikeSchema, long bikelaneOid) {
             Value laneidvalue = new Value();
+            Value lanecidvalue = new Value();
             Value lanenamevalue = new Value();
             Value lanelat1value = new Value();
             Value lanelng1value = new Value();
             Value lanelat2value = new Value();
             Value lanelng2value = new Value();
             graph.getAttribute(bikelaneOid, BikeSchema.getLaneIdType(), laneidvalue);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneCidType(), lanecidvalue);
             graph.getAttribute(bikelaneOid, BikeSchema.getLaneNameType(), lanenamevalue);
             graph.getAttribute(bikelaneOid, BikeSchema.getLaneLat1Type(), lanelat1value);
             graph.getAttribute(bikelaneOid, BikeSchema.getLaneLon1Type(), lanelng1value);
@@ -127,11 +128,14 @@ public class BikeGraphQueryNear {
 
             BikeLane bikelane = new BikeLane();
             bikelane.setId(laneidvalue.getString());
+            bikelane.setCid(lanecidvalue.getString());
             bikelane.setName(lanenamevalue.getString());
-            bikelane.setLat1(lanelat1value.getString());
-            bikelane.setLng1(lanelng1value.getString());
-            bikelane.setLat2(lanelat2value.getString());
-            bikelane.setLng2(lanelng2value.getString());
+            bikelane.setLat1(lanelat1value.getDouble());
+            bikelane.setLng1(lanelng1value.getDouble());
+            bikelane.setLat2(lanelat2value.getDouble());
+            bikelane.setLng2(lanelng2value.getDouble());
+
+            Log.e(TAG, bikelane.toString());
 
             //Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
 
