@@ -1,10 +1,13 @@
 package com.bvisible.carnet.models;
 
+import java.util.ArrayList;
+
 public class Route {
     private int id;
     private String shortname;
     private String longname;
     private int type;
+    private ArrayList<String> timetable;
 
     public int getId() {
         return id;
@@ -38,6 +41,14 @@ public class Route {
         this.type = type;
     }
 
+    public ArrayList<String> getTimetable() {
+        return timetable;
+    }
+
+    public void setTimetable(ArrayList<String> timetable) {
+        this.timetable = timetable;
+    }
+
     @Override
     public String toString() {
         return "Route{" +
@@ -45,6 +56,7 @@ public class Route {
                 ", shortname='" + shortname + '\'' +
                 ", longname='" + longname + '\'' +
                 ", type=" + type +
+                ", timetable=" + timetable +
                 '}';
     }
 }

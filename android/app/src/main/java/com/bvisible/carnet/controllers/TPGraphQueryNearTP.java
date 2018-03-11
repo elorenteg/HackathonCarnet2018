@@ -18,7 +18,11 @@ import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Value;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
     public AsyncResponse delegate = null;
@@ -112,18 +116,6 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
                 Log.e(TAG, stop.toString());
                 stops.add(stop);
             }
-
-            /*
-            Objects routesFromNearStops = graph.neighbors(nearStops, TPSchema.getConnectRouteType(), EdgesDirection.Ingoing);
-            ObjectsIterator itroutes = routesFromNearStops.iterator();
-            while (itroutes.hasNext())
-            {
-                long routeOid = itroutes.next();
-                Value routeidvalue = new Value();
-                graph.getAttribute(routeOid, TPSchema.getRouteIdType(), routeidvalue);
-                Log.e(TAG, "Route-" + routeidvalue.toString());
-            }
-            */
         }
     }
 
@@ -158,15 +150,43 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
         graph.getAttribute(routeOid, TPSchema.getRouteLongNameType(), routelongnamevalue);
         graph.getAttribute(routeOid, TPSchema.getRouteTypeType(), routetypevalue);
 
+        ArrayList<String> timetable = getTimetable();
+
         Route route = new Route();
         route.setId(routeidvalue.getInteger());
         route.setShortname(routeshortnamevalue.getString());
         route.setLongname(routelongnamevalue.getString());
         route.setId(routeidvalue.getInteger());
+        route.setTimetable(timetable);
 
         //Log.e(TAG, "---Route-" + routeidvalue.toString() + "-" + routeshortnamevalue.toString());
 
         return route;
+    }
+
+    ArrayList<String> getTimetable() {
+        ArrayList<String> timetable = new ArrayList<>();
+        int min = 5;
+        int max = 15;
+        int freq = 5 + (int)(Math.random() * ((15 - 5) + 1));
+
+        int minHour = 0;
+        int maxHour = 24;
+        int actHour = minHour;
+        int actMins = 0;
+        int N = (maxHour-minHour)*60/freq;
+        for (int i = 0; i < N; ++i) {
+            String hour = String.format("%02d", actHour) + ":" + String.format("%02d", actMins);
+            timetable.add(hour);
+
+            actMins += freq;
+            if (actMins >= 60) {
+                actMins -= 60;
+                actHour++;
+            }
+        }
+
+        return timetable;
     }
 
     protected void onPostExecute(String string) {
