@@ -1,8 +1,8 @@
 package com.bvisible.carnet;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +19,17 @@ import com.bvisible.carnet.utils.PointUtils;
 
 import java.util.ArrayList;
 
-public class SecondaryFragment extends Fragment {
-    public static final String TAG = SecondaryFragment.class.getSimpleName();
+public class BikeLanesFragment extends Fragment implements AsyncResponse {
+    public static final String TAG = BikeLanesFragment.class.getSimpleName();
     private View rootView;
     private Button buttonPalau;
     private Button buttonIlla;
     private LinearLayout linearLayout;
 
-    public static SecondaryFragment newInstance() {
-        return new SecondaryFragment();
+    private AsyncResponse asyncResponse;
+
+    public static BikeLanesFragment newInstance() {
+        return new BikeLanesFragment();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,10 +39,12 @@ public class SecondaryFragment extends Fragment {
         setUpElements();
         setUpListeners();
 
+        asyncResponse = this;
+
         return rootView;
     }
 
-    public void updateInfo(Context context, double lat, double lng){
+    public void updateInfo(double lat, double lng){
         ArrayList<BikeLane> bikelanes = NearSitesController.getInstance().getAsyncTaskBikes().getBikes();
         Point p = new Point(lat, lng);
 
@@ -53,7 +57,7 @@ public class SecondaryFragment extends Fragment {
                 if (distance <= 0.5) {
                     lanes.add(bikelane.getName());
                     String text = bikelane.getName() + " - " + String.format("%.2f", distance) + " km";
-                    TextView textView = new TextView(context);
+                    TextView textView = new TextView(getContext());
                     linearLayout.addView(textView);
                     textView.setText(text);
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -71,13 +75,30 @@ public class SecondaryFragment extends Fragment {
     private void setUpListeners() {
         buttonPalau.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                NearSitesController.getInstance().queryBikesGraph(Constants.LAT_PALAU, Constants.LNG_PALAU);
+                NearSitesController.getInstance().queryBikesGraph(Constants.LAT_PALAU, Constants.LNG_PALAU, asyncResponse);
             }
         });
         buttonIlla.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                NearSitesController.getInstance().queryBikesGraph(Constants.LAT_ILLA, Constants.LNG_ILLA);
+                NearSitesController.getInstance().queryBikesGraph(Constants.LAT_ILLA, Constants.LNG_ILLA, asyncResponse);
             }
         });
+    }
+
+    @Override
+    public void processFinish(String typeAsync) {
+        boolean update = false;
+        double lat = -1;
+        double lng = -1;
+        if (typeAsync.equals("BIKES")) {
+            update = true;
+            lat = NearSitesController.getInstance().getLatitude();
+            lng = NearSitesController.getInstance().getLongitude();
+        }
+        Log.e(TAG, typeAsync);
+
+        if (update) {
+            updateInfo(lat, lng);
+        }
     }
 }

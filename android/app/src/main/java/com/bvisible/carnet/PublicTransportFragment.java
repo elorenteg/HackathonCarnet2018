@@ -26,18 +26,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class ThirdFragment extends Fragment {
-    public static final String TAG = ThirdFragment.class.getSimpleName();
+public class PublicTransportFragment extends Fragment implements AsyncResponse {
+    public static final String TAG = PublicTransportFragment.class.getSimpleName();
 
     private View rootView;
     private Button buttonPalau;
     private Button buttonIlla;
     private LinearLayout linearLayout;
 
-    private NearSitesController nearSitesController = null;
+    private AsyncResponse asyncResponse;
 
-    public static ThirdFragment newInstance() {
-        return new ThirdFragment();
+    public static PublicTransportFragment newInstance() {
+        return new PublicTransportFragment();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,16 +47,18 @@ public class ThirdFragment extends Fragment {
         setUpElements();
         setUpListeners();
 
+        asyncResponse = this;
+
         return rootView;
     }
 
-    public void updateInfo(Context context, double lat, double lng){
+    public void updateInfo(double lat, double lng){
         ArrayList<StopNextRoutes> nextRoutes = NearSitesController.getInstance().getAsyncTaskTP().getNextRoutes();
         Point p = new Point(lat, lng);
 
         for (StopNextRoutes stopNextRoutes : nextRoutes) {
             String text = stopNextRoutes.getStopname();
-            TextView textView = new TextView(context);
+            TextView textView = new TextView(getContext());
             linearLayout.addView(textView);
             textView.setText(text);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -72,7 +74,7 @@ public class ThirdFragment extends Fragment {
                 if (elapsedHours >= 0 && elapsedHours < 1 && dateNow.before(routeTime.getDate())) {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                     String text2 = "  " + routeTime.getName() + " " + sdf.format(routeTime.getDate());
-                    TextView textView2 = new TextView(context);
+                    TextView textView2 = new TextView(getContext());
                     linearLayout.addView(textView2);
                     textView2.setText(text2);
                     textView2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -91,17 +93,30 @@ public class ThirdFragment extends Fragment {
     private void setUpListeners() {
         buttonPalau.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                NearSitesController.getInstance().queryTPGraph(Constants.LAT_PALAU, Constants.LNG_PALAU);
+                NearSitesController.getInstance().queryTPGraph(Constants.LAT_PALAU, Constants.LNG_PALAU, asyncResponse);
             }
         });
         buttonIlla.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                NearSitesController.getInstance().queryTPGraph(Constants.LAT_ILLA, Constants.LNG_ILLA);
+                NearSitesController.getInstance().queryTPGraph(Constants.LAT_ILLA, Constants.LNG_ILLA, asyncResponse);
             }
         });
     }
 
-    public void setSparkseeController(NearSitesController nearSitesController) {
-        this.nearSitesController = nearSitesController;
+    @Override
+    public void processFinish(String typeAsync) {
+        boolean update = false;
+        double lat = -1;
+        double lng = -1;
+        if (typeAsync.equals("STOPS")) {
+            update = true;
+            lat = NearSitesController.getInstance().getLatitude();
+            lng = NearSitesController.getInstance().getLongitude();
+        }
+        Log.e(TAG, typeAsync);
+
+        if (update) {
+            updateInfo(lat, lng);
+        }
     }
 }

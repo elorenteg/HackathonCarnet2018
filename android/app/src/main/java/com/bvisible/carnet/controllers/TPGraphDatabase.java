@@ -15,13 +15,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class TPGraphDatabase {
-
-    public static String TAG = "TPGraph";
+    public static final String TAG = TPGraphDatabase.class.getSimpleName();
+    private static final String GRAPH_DATABASE_NAME = "transport.gdb";
     public static Context mContext;
-
     // Sparksee
     private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
-    private static final String GRAPH_DATABASE_NAME = "transport.gdb";
     private Sparksee sparksee = null;
     private Database database = null;
     private Session session = null;

@@ -7,15 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.bvisible.carnet.controllers.NearSitesController;
-
-public class MainFragment extends Fragment{
+public class MainFragment extends Fragment {
     public static final String TAG = MainFragment.class.getSimpleName();
     private View rootView;
     private Button button;
     private Button button2;
-
-    private NearSitesController nearSitesController = null;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -28,19 +24,17 @@ public class MainFragment extends Fragment{
         setUpElements();
         setUpListeners();
 
+        //TextToSpeechController.getInstance(getContext()).speak("Hola", TextToSpeech.QUEUE_FLUSH);
+
         return rootView;
     }
 
     private void setUpElements() {
-        button = (Button) rootView.findViewById(R.id.main_fragment_palau);
-        button2 = (Button) rootView.findViewById(R.id.main_fragment_illa);
+        button = rootView.findViewById(R.id.main_fragment_palau);
+        button2 = rootView.findViewById(R.id.main_fragment_illa);
     }
 
     private void setUpListeners() {
 
-    }
-
-    public void setSparkseeController(NearSitesController nearSitesController) {
-        this.nearSitesController = nearSitesController;
     }
 }
