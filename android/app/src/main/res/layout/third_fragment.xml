@@ -62,6 +62,7 @@
                 android:id="@+id/third_fragment_linearlayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="6"
                 android:orientation="vertical">
             </LinearLayout>
 
