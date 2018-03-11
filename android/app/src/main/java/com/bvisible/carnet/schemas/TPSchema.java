@@ -1,9 +1,9 @@
-package com.bvisible.carnet;
+package com.bvisible.carnet.schemas;
 
 import com.sparsity.sparksee.gdb.Graph;
 import com.sparsity.sparksee.gdb.Type;
 
-public class Schema {
+public class TPSchema {
 
     private int stopType        = Type.InvalidType;
     private int routeType       = Type.InvalidType;
@@ -23,7 +23,7 @@ public class Schema {
     private int routeTypeType       = Type.InvalidType;
 
 
-    public Schema(Graph graph) {
+    public TPSchema(Graph graph) {
 
         stopType = graph.findType("stop");
         routeType = graph.findType("route");

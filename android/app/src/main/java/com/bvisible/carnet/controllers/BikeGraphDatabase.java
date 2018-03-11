@@ -3,7 +3,7 @@ package com.bvisible.carnet.controllers;
 import android.content.Context;
 import android.os.Environment;
 
-import com.bvisible.carnet.schemas.TPSchema;
+import com.bvisible.carnet.schemas.BikeSchema;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.Graph;
 import com.sparsity.sparksee.gdb.LogLevel;
@@ -14,23 +14,23 @@ import com.sparsity.sparksee.gdb.SparkseeConfig;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class TPGraphDatabase {
+public class BikeGraphDatabase {
 
-    public static String TAG = "TPGraph";
+    public static String TAG = "BikeGraph";
     public static Context mContext;
 
     // Sparksee
     private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
-    private static final String GRAPH_DATABASE_NAME = "transport.gdb";
+    private static final String GRAPH_DATABASE_NAME = "bici.gdb";
     private Sparksee sparksee = null;
     private Database database = null;
     private Session session = null;
-    private TPSchema schema = null;
+    private BikeSchema schema = null;
     private Graph graph = null;
 
     private boolean isGraphLoaded = false;
 
-    public TPGraphDatabase(Context context) {
+    public BikeGraphDatabase(Context context) {
         mContext = context;
     }
 
@@ -47,7 +47,7 @@ public class TPGraphDatabase {
         database = sparksee.open(file.getPath(), true);
 
         session = database.newSession();
-        schema = new TPSchema(session.getGraph());
+        schema = new BikeSchema(session.getGraph());
         graph = session.getGraph();
     }
 
@@ -73,7 +73,7 @@ public class TPGraphDatabase {
         return session;
     }
 
-    public TPSchema getSchema() {
+    public BikeSchema getSchema() {
         return schema;
     }
 }

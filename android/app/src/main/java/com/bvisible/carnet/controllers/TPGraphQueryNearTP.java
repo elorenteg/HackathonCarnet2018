@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.bvisible.carnet.AsyncResponse;
-import com.bvisible.carnet.Schema;
+import com.bvisible.carnet.schemas.TPSchema;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
 import com.sparsity.sparksee.gdb.Condition;
@@ -19,7 +19,6 @@ import com.sparsity.sparksee.gdb.Value;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
     public AsyncResponse delegate = null;
@@ -55,14 +54,14 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
             Database database = tpGraphDB.getDatabase();
             Graph graph = tpGraphDB.getGraph();
             Session session = tpGraphDB.getSession();
-            Schema schema = tpGraphDB.getSchema();
+            TPSchema TPSchema = tpGraphDB.getSchema();
 
             nearStops = null;
             nearRoutes = null;
             stops = new ArrayList<>();
 
-            loadNearStops(graph, schema);
-            loadNearRoutes(graph, schema);
+            loadNearStops(graph, TPSchema);
+            loadNearRoutes(graph, TPSchema);
         } catch (Exception e) {
             Log.e(TAG, "error ", e);
         }
@@ -70,7 +69,7 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
         return "";
     }
 
-    private void loadNearStops(Graph graph, Schema schema) {
+    private void loadNearStops(Graph graph, TPSchema TPSchema) {
         double diffLat = 0.0015;
         double diffLng = 0.0015;
 
@@ -84,29 +83,29 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
         Value value1 = new Value();
         Value value2 = new Value();
 
-        Objects castNearStopsLat = graph.select(schema.getStopLatType(), Condition.Between,
+        Objects castNearStopsLat = graph.select(TPSchema.getStopLatType(), Condition.Between,
                 value1.setString(String.valueOf(minLat)), value2.setString(String.valueOf(maxLat)));
-        Objects castNEarStopsLng = graph.select(schema.getStopLonType(), Condition.Between,
+        Objects castNEarStopsLng = graph.select(TPSchema.getStopLonType(), Condition.Between,
                 value1.setString(String.valueOf(minLng)), value2.setString(String.valueOf(maxLng)));
         nearStops = Objects.combineIntersection(castNearStopsLat, castNEarStopsLng);
     }
 
-    private void loadNearRoutes(Graph graph, Schema schema) {
+    private void loadNearRoutes(Graph graph, TPSchema TPSchema) {
         if (nearStops != null) {
             Objects routes = null;
 
             ObjectsIterator itstops = nearStops.iterator();
             while (itstops.hasNext()) {
                 long stopOid = itstops.next();
-                Stop stop = getStop(graph, schema, stopOid);
+                Stop stop = getStop(graph, TPSchema, stopOid);
                 ArrayList<Route> stoproutes = new ArrayList<>();
 
-                Objects routesFromStop = graph.neighbors(stopOid, schema.getConnectRouteType(), EdgesDirection.Ingoing);
+                Objects routesFromStop = graph.neighbors(stopOid, TPSchema.getConnectRouteType(), EdgesDirection.Ingoing);
                 ObjectsIterator itroutes = routesFromStop.iterator();
                 while (itroutes.hasNext())
                 {
                     long routeOid = itroutes.next();
-                    Route route = getRoute(graph, schema, routeOid);
+                    Route route = getRoute(graph, TPSchema, routeOid);
                     stoproutes.add(route);
                 }
                 stop.setRoutes(stoproutes);
@@ -115,28 +114,28 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
             }
 
             /*
-            Objects routesFromNearStops = graph.neighbors(nearStops, schema.getConnectRouteType(), EdgesDirection.Ingoing);
+            Objects routesFromNearStops = graph.neighbors(nearStops, TPSchema.getConnectRouteType(), EdgesDirection.Ingoing);
             ObjectsIterator itroutes = routesFromNearStops.iterator();
             while (itroutes.hasNext())
             {
                 long routeOid = itroutes.next();
                 Value routeidvalue = new Value();
-                graph.getAttribute(routeOid, schema.getRouteIdType(), routeidvalue);
+                graph.getAttribute(routeOid, TPSchema.getRouteIdType(), routeidvalue);
                 Log.e(TAG, "Route-" + routeidvalue.toString());
             }
             */
         }
     }
 
-    private Stop getStop(Graph graph, Schema schema, long stopOid) {
+    private Stop getStop(Graph graph, TPSchema TPSchema, long stopOid) {
         Value stopidvalue = new Value();
         Value stopnamevalue = new Value();
         Value stoplatvalue = new Value();
         Value stoplngvalue = new Value();
-        graph.getAttribute(stopOid, schema.getStopIdType(), stopidvalue);
-        graph.getAttribute(stopOid, schema.getStopNameType(), stopnamevalue);
-        graph.getAttribute(stopOid, schema.getStopLatType(), stoplatvalue);
-        graph.getAttribute(stopOid, schema.getStopLonType(), stoplngvalue);
+        graph.getAttribute(stopOid, TPSchema.getStopIdType(), stopidvalue);
+        graph.getAttribute(stopOid, TPSchema.getStopNameType(), stopnamevalue);
+        graph.getAttribute(stopOid, TPSchema.getStopLatType(), stoplatvalue);
+        graph.getAttribute(stopOid, TPSchema.getStopLonType(), stoplngvalue);
 
         Stop stop = new Stop();
         stop.setId(stopidvalue.getInteger());
@@ -149,15 +148,15 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
         return stop;
     }
 
-    private Route getRoute(Graph graph, Schema schema, long routeOid) {
+    private Route getRoute(Graph graph, TPSchema TPSchema, long routeOid) {
         Value routeidvalue = new Value();
         Value routeshortnamevalue = new Value();
         Value routelongnamevalue = new Value();
         Value routetypevalue = new Value();
-        graph.getAttribute(routeOid, schema.getRouteIdType(), routeidvalue);
-        graph.getAttribute(routeOid, schema.getRouteShortNameType(), routeshortnamevalue);
-        graph.getAttribute(routeOid, schema.getRouteLongNameType(), routelongnamevalue);
-        graph.getAttribute(routeOid, schema.getRouteTypeType(), routetypevalue);
+        graph.getAttribute(routeOid, TPSchema.getRouteIdType(), routeidvalue);
+        graph.getAttribute(routeOid, TPSchema.getRouteShortNameType(), routeshortnamevalue);
+        graph.getAttribute(routeOid, TPSchema.getRouteLongNameType(), routelongnamevalue);
+        graph.getAttribute(routeOid, TPSchema.getRouteTypeType(), routetypevalue);
 
         Route route = new Route();
         route.setId(routeidvalue.getInteger());
@@ -172,7 +171,7 @@ public class TPGraphQueryNearTP  extends AsyncTask<Void, Void, String> {
 
     protected void onPostExecute(String string) {
         Log.e(TAG, "SEFINI");
-        delegate.processFinish();
+        delegate.processFinish("STOPS");
     }
 
     public ArrayList<Stop> getRoutes() {
