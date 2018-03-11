@@ -54,10 +54,12 @@
             android:layout_weight="1"
             android:orientation="vertical" />
 
-        <TextView
-            android:id="@+id/third_fragment_text"
+        <LinearLayout
+            android:id="@+id/third_fragment_linearlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="textView"/>
+            android:orientation="vertical">
+
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

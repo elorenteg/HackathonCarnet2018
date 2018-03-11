@@ -1,11 +1,15 @@
 package com.bvisible.carnet.controllers;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.bvisible.carnet.AsyncResponse;
 import com.bvisible.carnet.models.BikeLane;
+import com.bvisible.carnet.models.StopNextRoutes;
 import com.bvisible.carnet.schemas.BikeSchema;
+import com.bvisible.carnet.utils.Point;
+import com.bvisible.carnet.utils.PointUtils;
 import com.sparsity.sparksee.gdb.Condition;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.Graph;
@@ -15,6 +19,7 @@ import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Value;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class BikeGraphQueryNear {
     public static final String TAG = BikeGraphQueryNear.class.getSimpleName();
@@ -70,6 +75,43 @@ public class BikeGraphQueryNear {
             return "";
         }
 
+        private BikeLane getBikelane(Graph graph, BikeSchema BikeSchema, long bikelaneOid) {
+            Value laneidvalue = new Value();
+            Value lanecidvalue = new Value();
+            Value lanenamevalue = new Value();
+            Value lanelat1value = new Value();
+            Value lanelng1value = new Value();
+            Value lanelat2value = new Value();
+            Value lanelng2value = new Value();
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneIdType(), laneidvalue);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneCidType(), lanecidvalue);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneNameType(), lanenamevalue);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLat1Type(), lanelat1value);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLon1Type(), lanelng1value);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLat2Type(), lanelat2value);
+            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLon2Type(), lanelng2value);
+
+            BikeLane bikelane = new BikeLane();
+            bikelane.setId(laneidvalue.getString());
+            bikelane.setCid(lanecidvalue.getString());
+            bikelane.setName(lanenamevalue.getString());
+            bikelane.setLat1(lanelat1value.getDouble());
+            bikelane.setLng1(lanelng1value.getDouble());
+            bikelane.setLat2(lanelat2value.getDouble());
+            bikelane.setLng2(lanelng2value.getDouble());
+
+            Point p = new Point(lat, lng);
+            Point pA = new Point(bikelane.getLat1(), bikelane.getLng1());
+            Point pB = new Point(bikelane.getLat2(), bikelane.getLng2());
+            double distance = PointUtils.pointToLineDistance(pA, pB, p);
+            bikelane.setDistance(distance);
+
+            //Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
+
+            return bikelane;
+        }
+
+
         protected void onPostExecute(String string) {
             Log.e(TAG, "SEFINI");
             responseCallback.processFinish("BIKES");
@@ -108,38 +150,7 @@ public class BikeGraphQueryNear {
                 bikelanes.add(bikelane);
                 //Log.e(TAG, bikelane.toString());
             }
-        }
-
-        private BikeLane getBikelane(Graph graph, BikeSchema BikeSchema, long bikelaneOid) {
-            Value laneidvalue = new Value();
-            Value lanecidvalue = new Value();
-            Value lanenamevalue = new Value();
-            Value lanelat1value = new Value();
-            Value lanelng1value = new Value();
-            Value lanelat2value = new Value();
-            Value lanelng2value = new Value();
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneIdType(), laneidvalue);
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneCidType(), lanecidvalue);
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneNameType(), lanenamevalue);
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLat1Type(), lanelat1value);
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLon1Type(), lanelng1value);
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLat2Type(), lanelat2value);
-            graph.getAttribute(bikelaneOid, BikeSchema.getLaneLon2Type(), lanelng2value);
-
-            BikeLane bikelane = new BikeLane();
-            bikelane.setId(laneidvalue.getString());
-            bikelane.setCid(lanecidvalue.getString());
-            bikelane.setName(lanenamevalue.getString());
-            bikelane.setLat1(lanelat1value.getDouble());
-            bikelane.setLng1(lanelng1value.getDouble());
-            bikelane.setLat2(lanelat2value.getDouble());
-            bikelane.setLng2(lanelng2value.getDouble());
-
-            Log.e(TAG, bikelane.toString());
-
-            //Log.e(TAG, "Stop-" + stopidvalue.toString() + "-" + stopnamevalue.toString());
-
-            return bikelane;
+            Collections.sort(bikelanes);
         }
     }
 }

@@ -44,9 +44,12 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
         return rootView;
     }
 
-    public void updateInfo(String tt) {
+    public void updateInfo(double lat, double lng){
         ArrayList<BikeLane> bikelanes = NearSitesController.getInstance().getAsyncTaskBikes().getBikes();
-        Point p = new Point(Constants.LAT_PALAU, Constants.LNG_PALAU);
+        Point p = new Point(lat, lng);
+
+        if(((LinearLayout) linearLayout).getChildCount() > 0)
+            ((LinearLayout) linearLayout).removeAllViews();
 
         ArrayList<String> lanes = new ArrayList<>();
         for (BikeLane bikelane : bikelanes) {
@@ -88,16 +91,17 @@ public class BikeLanesFragment extends Fragment implements AsyncResponse {
     @Override
     public void processFinish(String typeAsync) {
         boolean update = false;
-        String text = "";
+        double lat = -1;
+        double lng = -1;
         if (typeAsync.equals("BIKES")) {
             update = true;
-            text = NearSitesController.getInstance().getBikesText();
+            lat = NearSitesController.getInstance().getLatitude();
+            lng = NearSitesController.getInstance().getLongitude();
         }
         Log.e(TAG, typeAsync);
-        Log.e(TAG, text);
 
         if (update) {
-            updateInfo(text);
+            updateInfo(lat, lng);
         }
     }
 }

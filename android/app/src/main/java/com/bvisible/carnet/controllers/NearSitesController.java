@@ -26,6 +26,9 @@ public class NearSitesController {
     private TPGraphDatabase tpGraphDB;
     private BikeGraphDatabase bikeGraphDB;
 
+    private double latitude = -1;
+    private double longitude = -1;
+
     public NearSitesController() {
         this.tpGraphQueryNearTP = new TPGraphQueryNearTP();
         this.bikeGraphQueryNear = new BikeGraphQueryNear();
@@ -59,10 +62,14 @@ public class NearSitesController {
     }
 
     public void queryTPGraph(double lat, double lng, AsyncResponse responseCallback) {
+        this.latitude = lat;
+        this.longitude = lng;
         tpGraphQueryNearTP.queryGraph(tpGraphDB, lat, lng, responseCallback);
     }
 
     public void queryBikesGraph(double lat, double lng, AsyncResponse responseCallback) {
+        this.latitude = lat;
+        this.longitude = lng;
         bikeGraphQueryNear.queryGraph(bikeGraphDB, lat, lng, responseCallback);
     }
 
@@ -139,5 +146,13 @@ public class NearSitesController {
 
     public BikeGraphQueryNear getAsyncTaskBikes() {
         return bikeGraphQueryNear;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 }

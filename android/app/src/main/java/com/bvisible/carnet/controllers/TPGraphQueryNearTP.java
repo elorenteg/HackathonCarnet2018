@@ -4,9 +4,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.bvisible.carnet.AsyncResponse;
+import com.bvisible.carnet.models.RouteTime;
+import com.bvisible.carnet.models.StopNextRoutes;
+import com.bvisible.carnet.schemas.TPSchema;
+import com.bvisible.carnet.models.Route;
+import com.bvisible.carnet.models.Stop;
+import com.bvisible.carnet.utils.DateUtils;
 import com.bvisible.carnet.models.Route;
 import com.bvisible.carnet.models.Stop;
 import com.bvisible.carnet.schemas.TPSchema;
+import com.bvisible.carnet.utils.Point;
+import com.bvisible.carnet.utils.PointUtils;
 import com.sparsity.sparksee.gdb.Condition;
 import com.sparsity.sparksee.gdb.Database;
 import com.sparsity.sparksee.gdb.EdgesDirection;
@@ -17,6 +25,10 @@ import com.sparsity.sparksee.gdb.Session;
 import com.sparsity.sparksee.gdb.Value;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 
 public class TPGraphQueryNearTP {
     public static final String TAG = TPGraphQueryNearTP.class.getSimpleName();
@@ -194,5 +206,41 @@ public class TPGraphQueryNearTP {
 
             return timetable;
         }
+    }
+
+    public ArrayList<StopNextRoutes> getNextRoutes(double latitude, double longitude) {
+        ArrayList<Stop> stops = getRoutes();
+        ArrayList<StopNextRoutes> stopNextRoutesArray = new ArrayList<>();
+        Point p = new Point(latitude, longitude);
+
+        for (Stop stop : stops) {
+            double lat = Double.valueOf(stop.getLat());
+            double lng = Double.valueOf(stop.getLng());
+            Point p2 = new Point(lat, lng);
+            double distance = PointUtils.pointToLineDistance(p2, p2, p);
+
+            StopNextRoutes stopNextRoutes = new StopNextRoutes();
+            stopNextRoutes.setStopid(stop.getId());
+            stopNextRoutes.setStopname(stop.getName());
+            stopNextRoutes.setLat(lat);
+            stopNextRoutes.setLng(lng);
+            stopNextRoutes.setDistance(distance);
+            ArrayList<RouteTime> routetimes = new ArrayList<>();
+            for (Route route : stop.getRoutes()) {
+                for (String time : route.getTimetable()) {
+                    RouteTime routeTime = new RouteTime();
+                    routeTime.setName(route.getShortname());
+                    routeTime.setDate(DateUtils.parseDate(time));
+                    routetimes.add(routeTime);
+                }
+            }
+            Collections.sort(routetimes);
+            stopNextRoutes.setRoutes(routetimes);
+            stopNextRoutesArray.add(stopNextRoutes);
+            Log.e(TAG, stopNextRoutes.toString());
+        }
+        Collections.sort(stopNextRoutesArray);
+
+        return stopNextRoutesArray;
     }
 }
