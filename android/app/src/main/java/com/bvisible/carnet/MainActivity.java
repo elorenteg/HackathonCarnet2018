@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import com.bvisible.carnet.controllers.BikeGraphDatabase;
 import com.bvisible.carnet.controllers.BikeGraphQueryNear;
 import com.bvisible.carnet.controllers.BluetoothController;
+import com.bvisible.carnet.controllers.NearSitesController;
 import com.bvisible.carnet.controllers.TPGraphDatabase;
 import com.bvisible.carnet.controllers.TPGraphQueryNearTP;
 import com.bvisible.carnet.models.BikeLane;
@@ -26,6 +27,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,9 +43,11 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
     private static final int PERMISSION_REQUEST_WRITE_FILE = 1;
     public static String TAG = "MainActivity";
     private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
-    TPGraphQueryNearTP asyncTaskTP;
-    BikeGraphQueryNear asyncTaskBikes;
-    TPGraphQueryNearTP asyncTask;
+    private TPGraphQueryNearTP asyncTaskTP;
+    private BikeGraphQueryNear asyncTaskBikes;
+
+    private Fragment currentFragment = null;
+    private String currentFragmentTAG = null;
 
     private BluetoothController.ReadReceived readReceivedCallback = this;
     private BluetoothController.BluetoothStatus bluetoothStatusCallback = this;
@@ -54,22 +58,27 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Fragment selectedFragment = null;
+            String selectedTag = null;
 
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     selectedFragment = MainFragment.newInstance();
+                    selectedTag = MainFragment.TAG;
                     break;
                 case R.id.navigation_dashboard:
                     selectedFragment = SecondaryFragment.newInstance();
+                    selectedTag = SecondaryFragment.TAG;
                     break;
                 case R.id.navigation_notifications:
-                    //selectedFragment = MainFragment.newInstance();
-
+                    selectedFragment = ThirdFragment.newInstance();
+                    selectedTag = ThirdFragment.TAG;
                     break;
             }
 
             if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                currentFragment = selectedFragment;
+                currentFragmentTAG = selectedTag;
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment, selectedTag).commit();
                 return true;
             }
             return false;
@@ -91,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         asyncTaskTP.delegate = this;
         asyncTaskBikes.delegate = this;
 
+        NearSitesController.getInstance().init(asyncTaskTP, asyncTaskBikes);
+
         requestFileAccessPermission();
     }
 
@@ -110,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
 
                 if (allPermissionsChecked) {
                     //startBluetooth();
-                    //openGDB();
+                    NearSitesController.getInstance().openGDB(getApplicationContext());
                 }
             }
 
@@ -121,80 +132,39 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Bl
         }).check();
     }
 
-    private void openGDB() {
-        TPGraphDatabase tpGraphDB = new TPGraphDatabase(getApplicationContext());
-        BikeGraphDatabase bikeGraphDB = new BikeGraphDatabase(getApplicationContext());
-
-        try {
-            tpGraphDB.loadDatabase();
-            bikeGraphDB.loadDatabase();
-            asyncTaskTP.queryGraph(tpGraphDB, 41.388693, 2.112126);
-            asyncTaskBikes.queryGraph(bikeGraphDB, 41.388693, 2.112126);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //tpGraphDB.closeDatabase();
-    }
-
     @Override
     public void processFinish(String typeAsync) {
         Log.e(TAG, "SEFINI " + typeAsync);
+        String text = "";
+        boolean update = false;
+        boolean updateStops = false;
+        boolean updateBikes = false;
         if (typeAsync.equals("STOPS")) {
-            ArrayList<StopNextRoutes> nextRoutes = getNextRoutes();
-
-            Log.e(TAG, getNextRoutes().size() + " ");
-
-            String text = "";
-            for (StopNextRoutes stopNextRoutes : nextRoutes) {
-                text += stopNextRoutes.getStopname() + "\n";
-                for (RouteTime routeTime : stopNextRoutes.getRoutes()) {
-                    Calendar now = Calendar.getInstance();
-                    int hour = now.get(Calendar.HOUR);
-                    int minute = now.get(Calendar.MINUTE);
-                    Date dateNow = DateUtils.parseDate(hour + ":" + minute);
-
-                    long different = dateNow.getTime() - routeTime.getDate().getTime();
-                    int elapsedHours = (int) different / (1000 * 60 * 60);
-                    if (elapsedHours >= 0 && elapsedHours < 1 && dateNow.before(routeTime.getDate())) {
-                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                        text += "  " + routeTime.getName() + " " + sdf.format(routeTime.getDate()) + "\n";
-                        Log.e(TAG, elapsedHours + "");
-                    } else {
-                        Log.e(TAG, "dd");
-                        Log.e(TAG, elapsedHours + "");
-                    }
-                }
-            }
+            update = true;
+            updateStops = true;
+            text = NearSitesController.getInstance().getTPtext();
+            Log.e(TAG, text);
         } else if (typeAsync.equals("BIKES")) {
-            ArrayList<BikeLane> bikelanes = asyncTaskBikes.getBikes();
-            Log.e(TAG, bikelanes.toString());
+            update = true;
+            updateBikes = true;
+            text = NearSitesController.getInstance().getBikesText();
+            Log.e(TAG, text);
         }
-    }
 
-    private ArrayList<StopNextRoutes> getNextRoutes() {
-        ArrayList<Stop> stops = asyncTaskTP.getRoutes();
-        ArrayList<StopNextRoutes> stopNextRoutesArray = new ArrayList<>();
-
-        for (Stop stop : stops) {
-            StopNextRoutes stopNextRoutes = new StopNextRoutes();
-            stopNextRoutes.setStopid(stop.getId());
-            stopNextRoutes.setStopname(stop.getName());
-            ArrayList<RouteTime> routetimes = new ArrayList<>();
-            for (Route route : stop.getRoutes()) {
-                for (String time : route.getTimetable()) {
-                    RouteTime routeTime = new RouteTime();
-                    routeTime.setName(route.getShortname());
-                    routeTime.setDate(DateUtils.parseDate(time));
-                    routetimes.add(routeTime);
+        if (update) {
+            if (currentFragmentTAG == SecondaryFragment.TAG && updateBikes) {
+                SecondaryFragment secondaryFragment = (SecondaryFragment) getSupportFragmentManager().findFragmentByTag(currentFragmentTAG);
+                if (secondaryFragment != null) {
+                    secondaryFragment.updateInfo(text);
                 }
             }
-            Collections.sort(routetimes);
-            stopNextRoutes.setRoutes(routetimes);
-            stopNextRoutesArray.add(stopNextRoutes);
-            Log.e(TAG, stopNextRoutes.toString());
+            else if (currentFragmentTAG == ThirdFragment.TAG && updateStops) {
+                ThirdFragment thirdFragment = (ThirdFragment) getSupportFragmentManager().findFragmentByTag(currentFragmentTAG);
+                if (thirdFragment != null) {
+                    thirdFragment.updateInfo(text);
+                }
+            }
         }
-
-        return stopNextRoutesArray;
     }
 
     private void startBluetooth() {

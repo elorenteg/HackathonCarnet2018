@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#00D1B6</color>
+    <color name="colorPrimaryDark">#3B384A</color>
+    <color name="colorAccent">#F35A66</color>
+    <color name="colorBase">#FFF</color>
+
+    <color name="colorBubleChatSender">#FF939E</color>
+    <color name="colorBubleChatReceiver">#71CEC2</color>
 </resources>
