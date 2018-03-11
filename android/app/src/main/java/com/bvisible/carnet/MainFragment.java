@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-public class MainFragment extends Fragment{
+public class MainFragment extends Fragment {
     public static final String TAG = MainFragment.class.getSimpleName();
     private View rootView;
     private Button button;
@@ -23,6 +23,8 @@ public class MainFragment extends Fragment{
 
         setUpElements();
         setUpListeners();
+
+        //TextToSpeechController.getInstance(getContext()).speak("Hola", TextToSpeech.QUEUE_FLUSH);
 
         return rootView;
     }
