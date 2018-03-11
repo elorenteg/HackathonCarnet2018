@@ -4,6 +4,8 @@
 
 Copy data/transport.gdb into the root of your phone (Mobilestorage)
 
+Copy data/bici.gdb into the root of your phone (Mobilestorage)
+
 ## Configuration - Arduino
 
 We used a FC-114 (HC-06) Bluetooth Module for Arduino Nano, configured like this:

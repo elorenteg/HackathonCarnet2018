@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.bvisible.carnet"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -29,4 +29,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation files('libs/sparkseejava.jar')
+
+    compile 'com.karumi:dexter:4.2.0'
+    compile 'com.android.volley:volley:1.0.0'
+    compile 'com.akexorcist:bluetoothspp:1.0.0'
 }
