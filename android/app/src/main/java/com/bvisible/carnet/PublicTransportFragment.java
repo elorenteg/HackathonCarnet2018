@@ -125,6 +125,8 @@ public class PublicTransportFragment extends Fragment implements AsyncResponse {
         Log.e(TAG, typeAsync);
 
         if (update) {
+            String hour = NearSitesController.getInstance().getAsyncTaskTP().timeToRoute(lat, lng, "L3");
+
             updateInfo(lat, lng);
         }
     }
