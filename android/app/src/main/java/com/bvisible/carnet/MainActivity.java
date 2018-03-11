@@ -1,8 +1,10 @@
 package com.bvisible.carnet;
 
 import android.Manifest;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -18,22 +20,27 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 
-public class MainActivity extends AppCompatActivity implements BluetoothController.ReadReceived, BluetoothController.BluetoothStatus {
+public class MainActivity extends AppCompatActivity implements AsyncResponse, BluetoothController.ReadReceived, BluetoothController.BluetoothStatus {
 
     private static final String GRAPH_DATABASE_NAME = "imdb.gdb";
     //permissions
     private static final int PERMISSION_REQUEST_WRITE_FILE = 1;
     public static String TAG = "MainActivity";
+    private final int REQ_CODE_SPEECH_INPUT = 100;
     private final String SparkseeLicense = "NWNRP-J7NZ0-7159N-FJG09";
 
     private BluetoothController.ReadReceived readReceivedCallback = this;
     private BluetoothController.BluetoothStatus bluetoothStatusCallback = this;
     private Location lastLocation;
+
+    private AsyncResponse asyncResponse;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -97,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
                     //startBluetooth();
                     getLocation();
                     NearSitesController.getInstance().openGDB(getApplicationContext());
+                    audioRecognison();
                 }
             }
 
@@ -105,6 +113,23 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
 
             }
         }).check();
+    }
+
+    private void audioRecognison() {
+        promptSpeechInput();
+
+        if (lastLocation != null) {
+            NearSitesController.getInstance().queryBikesGraph(lastLocation.getLatitude(), lastLocation.getLongitude(), asyncResponse);
+        }
+    }
+
+    private void promptSpeechInput() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        //intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt));
+        startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
     }
 
     private void startBluetooth() {
@@ -175,6 +200,43 @@ public class MainActivity extends AppCompatActivity implements BluetoothControll
         if (valueReceived.equals("BOTON_APRETADO")) {
 
         } else if (valueReceived.equals("SHOCK_AGITADO")) {
+
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    Log.e(TAG, result.get(0));
+
+                    MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag(MainFragment.TAG);
+                    if (mainFragment != null) {
+                        mainFragment.newVoiceMessage(result.get(0));
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void processFinish(String typeAsync) {
+        boolean update = false;
+        double lat = -1;
+        double lng = -1;
+        if (typeAsync.equals("BIKES")) {
+            update = true;
+            lat = NearSitesController.getInstance().getLatitude();
+            lng = NearSitesController.getInstance().getLongitude();
+        }
+        Log.e(TAG, typeAsync);
+
+        if (update) {
 
         }
     }
